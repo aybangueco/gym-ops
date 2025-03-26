@@ -1,0 +1,19 @@
+services:
+  database:
+    image: postgres:latest
+    container_name: GYM-OPS-database
+    environment:
+      - POSTGRES_DB=gymops
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - 5432:5432
+    expose:
+      - 5432:5432
+    networks:
+      - default
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+
+volumes:
+  pg-data:
