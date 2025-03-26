@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS users(
     password bytea NOT NULL,
     created_at TIMESTAMP DEFAULT current_timestamp,
     updated_at TIMESTAMP DEFAULT current_timestamp,
-    version BIGINT
+    version BIGINT NOT NULL DEFAULT 1
 );
 -- +goose StatementEnd
 
