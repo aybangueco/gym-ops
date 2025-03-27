@@ -73,7 +73,10 @@ func (app *application) loginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	app.writeJSON(w, http.StatusOK, envelope{"token": token}, nil)
+	err = app.writeJSON(w, http.StatusOK, envelope{"token": token}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
 }
 
 func (app *application) registerHandler(w http.ResponseWriter, r *http.Request) {
@@ -131,5 +134,8 @@ func (app *application) registerHandler(w http.ResponseWriter, r *http.Request) 
 
 	user.Password = []byte{}
 
-	app.writeJSON(w, http.StatusCreated, user, nil)
+	err = app.writeJSON(w, http.StatusCreated, user, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
 }

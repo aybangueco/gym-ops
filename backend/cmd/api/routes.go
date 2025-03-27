@@ -26,5 +26,10 @@ func (app *application) routes() http.Handler {
 	r.Post("/api/login", app.loginHandler)
 	r.Post("/api/register", app.registerHandler)
 
+	r.Get("/api/memberships", app.requireAuthenticated(app.getMembershipsCreatedByUserHandler))
+	r.Post("/api/memberships", app.requireAuthenticated(app.createMembershipHandler))
+	r.Put("/api/memberships/{id}", app.requireAuthenticated(app.updateMembershipHandler))
+	r.Delete("/api/memberships/{id}", app.requireAuthenticated(app.deleteMembershipHandler))
+
 	return r
 }
