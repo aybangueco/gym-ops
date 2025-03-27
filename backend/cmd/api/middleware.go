@@ -1,8 +1,11 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net/http"
+	"strings"
+	"time"
 )
 
 func (app *application) recoverPanic(next http.Handler) http.Handler {
@@ -14,6 +17,65 @@ func (app *application) recoverPanic(next http.Handler) http.Handler {
 				app.serverErrorResponse(w, r, fmt.Errorf("%s", err))
 			}
 		}()
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+func (app *application) authenticate(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Add("Vary", "Authorization")
+
+		authorizationHeader := r.Header.Get("Authorization")
+
+		if authorizationHeader == "" {
+			app.setContextAuthenticatedUser(r, nil)
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		parts := strings.Split(authorizationHeader, " ")
+		token := parts[1]
+
+		if len(parts) < 2 || parts[0] != "Bearer" {
+			app.invalidAuthenticationTokenResponse(w, r)
+			return
+		}
+
+		parsedTokenClaims, err := app.parseUserToken(app.config, token)
+		if err != nil {
+			app.serverErrorResponse(w, r, err)
+			return
+		}
+
+		if parsedTokenClaims.Valid() != nil {
+			app.invalidAuthenticationTokenResponse(w, r)
+			return
+		}
+
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+
+		user, err := app.db.GetUserById(ctx, parsedTokenClaims.ID)
+		if err != nil {
+			app.serverErrorResponse(w, r, err)
+			return
+		}
+
+		r = app.setContextAuthenticatedUser(r, &user)
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+func (app *application) requireAuthenticated(next http.HandlerFunc) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		user := app.getContextAuthenticatedUser(r)
+
+		if user == nil {
+			app.requiredAuthenticatedResponse(w, r)
+			return
+		}
 
 		next.ServeHTTP(w, r)
 	})
