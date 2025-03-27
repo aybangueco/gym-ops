@@ -19,6 +19,11 @@ func (app *application) setContextAuthenticatedUser(r *http.Request, user *datab
 }
 
 func (app *application) getContextAuthenticatedUser(r *http.Request) *database.User {
-	ctx := r.Context().Value(authenticatedUserKey).(*database.User)
+	ctx, ok := r.Context().Value(authenticatedUserKey).(*database.User)
+
+	if !ok {
+		return nil
+	}
+
 	return ctx
 }
