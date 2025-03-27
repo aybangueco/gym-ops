@@ -12,7 +12,7 @@ import (
 	"github.com/w4keupvan/gym-ops/backend/internal/validator"
 )
 
-func (app *application) currentAuthenticatedHanler(w http.ResponseWriter, r *http.Request) {
+func (app *application) currentAuthenticatedHandler(w http.ResponseWriter, r *http.Request) {
 	user := app.getContextAuthenticatedUser(r)
 
 	user.Password = []byte{}

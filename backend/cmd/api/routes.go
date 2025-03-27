@@ -22,7 +22,7 @@ func (app *application) routes() http.Handler {
 
 	r.Get("/api/healthcheck", app.healthCheck)
 
-	r.Get("/api/auth/me", app.requireAuthenticated(app.currentAuthenticatedHanler))
+	r.Get("/api/auth/me", app.requireAuthenticated(app.currentAuthenticatedHandler))
 	r.Post("/api/login", app.loginHandler)
 	r.Post("/api/register", app.registerHandler)
 
