@@ -115,7 +115,7 @@ func (app *application) updateMembershipHandler(w http.ResponseWriter, r *http.R
 	ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	err = app.db.UpdateMembership(ctx, database.UpdateMembershipParams{
+	v, err := app.db.UpdateMembership(ctx, database.UpdateMembershipParams{
 		ID:               membership.ID,
 		MembershipName:   membership.MembershipName,
 		MembershipLength: membership.MembershipLength,
@@ -125,6 +125,8 @@ func (app *application) updateMembershipHandler(w http.ResponseWriter, r *http.R
 		app.serverErrorResponse(w, r, err)
 		return
 	}
+
+	membership.Version = v
 
 	err = app.writeJSON(w, http.StatusOK, envelope{"membership": membership}, nil)
 	if err != nil {

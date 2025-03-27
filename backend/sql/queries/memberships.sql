@@ -14,12 +14,13 @@ INSERT INTO memberships (
 )
 RETURNING *;
 
--- name: UpdateMembership :exec
+-- name: UpdateMembership :one
 UPDATE memberships
     set membership_name = $2,
     membership_length = $3,
     version = version + 1
-WHERE id = $1 AND version = $4;
+WHERE id = $1 AND version = $4
+RETURNING version;
 
 -- name: DeleteMembership :exec
 DELETE FROM memberships

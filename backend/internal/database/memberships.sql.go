@@ -96,12 +96,13 @@ func (q *Queries) GetMembershipsByUserID(ctx context.Context, createdBy int64) (
 	return items, nil
 }
 
-const updateMembership = `-- name: UpdateMembership :exec
+const updateMembership = `-- name: UpdateMembership :one
 UPDATE memberships
     set membership_name = $2,
     membership_length = $3,
     version = version + 1
 WHERE id = $1 AND version = $4
+RETURNING version
 `
 
 type UpdateMembershipParams struct {
@@ -111,12 +112,14 @@ type UpdateMembershipParams struct {
 	Version          int32  `json:"version"`
 }
 
-func (q *Queries) UpdateMembership(ctx context.Context, arg UpdateMembershipParams) error {
-	_, err := q.db.Exec(ctx, updateMembership,
+func (q *Queries) UpdateMembership(ctx context.Context, arg UpdateMembershipParams) (int32, error) {
+	row := q.db.QueryRow(ctx, updateMembership,
 		arg.ID,
 		arg.MembershipName,
 		arg.MembershipLength,
 		arg.Version,
 	)
-	return err
+	var version int32
+	err := row.Scan(&version)
+	return version, err
 }
