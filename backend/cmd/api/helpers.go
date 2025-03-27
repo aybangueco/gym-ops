@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -85,4 +86,13 @@ func (app *application) decodeJSON(w http.ResponseWriter, r *http.Request, dst a
 	}
 
 	return nil
+}
+
+func (app *application) decodeBase64(data string) ([]byte, error) {
+	secretKey, err := base64.StdEncoding.DecodeString(data)
+	if err != nil {
+		return nil, err
+	}
+
+	return secretKey, nil
 }

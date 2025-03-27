@@ -44,7 +44,7 @@ func (app *application) authenticate(next http.Handler) http.Handler {
 
 		parsedTokenClaims, err := app.parseUserToken(app.config, token)
 		if err != nil {
-			app.serverErrorResponse(w, r, err)
+			app.invalidAuthenticationTokenResponse(w, r)
 			return
 		}
 

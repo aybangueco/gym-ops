@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"net/http"
+
+	"github.com/w4keupvan/gym-ops/backend/internal/validator"
 )
 
 func (app *application) logError(r *http.Request, err error) {
@@ -38,4 +40,27 @@ func (app *application) methodNotAllowedResponse(w http.ResponseWriter, r *http.
 func (app *application) notFoundResponse(w http.ResponseWriter, r *http.Request) {
 	message := "the requested resource could not be found"
 	app.errorResponse(w, r, http.StatusNotFound, message)
+}
+
+func (app *application) badRequestResponse(w http.ResponseWriter, r *http.Request, err error) {
+	app.errorResponse(w, r, http.StatusBadRequest, err.Error())
+}
+
+func (app *application) invalidAuthenticationTokenResponse(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("WWW-Authenticate", "Bearer")
+
+	message := "invalid authorization header or token"
+	app.errorResponse(w, r, http.StatusUnauthorized, message)
+}
+
+func (app *application) requiredAuthenticatedResponse(w http.ResponseWriter, r *http.Request) {
+	message := "you need to be authenticated to access this resource"
+	app.errorResponse(w, r, http.StatusUnauthorized, message)
+}
+
+func (app *application) failedValidationResponse(w http.ResponseWriter, r *http.Request, v validator.Validator) {
+	err := app.writeJSON(w, http.StatusUnprocessableEntity, v, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
 }
