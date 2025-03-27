@@ -15,7 +15,7 @@ INSERT INTO memberships (
 ) VALUES (
     $1, $2, $3
 )
-RETURNING id, membership_name, membership_length, created_by
+RETURNING id, membership_name, membership_length, created_by, version
 `
 
 type CreateMembershipParams struct {
@@ -32,6 +32,7 @@ func (q *Queries) CreateMembership(ctx context.Context, arg CreateMembershipPara
 		&i.MembershipName,
 		&i.MembershipLength,
 		&i.CreatedBy,
+		&i.Version,
 	)
 	return i, err
 }
@@ -47,7 +48,7 @@ func (q *Queries) DeleteMembership(ctx context.Context, id int64) error {
 }
 
 const getMembershipByID = `-- name: GetMembershipByID :one
-SELECT id, membership_name, membership_length, created_by FROM memberships
+SELECT id, membership_name, membership_length, created_by, version FROM memberships
 WHERE id = $1
 `
 
@@ -59,12 +60,13 @@ func (q *Queries) GetMembershipByID(ctx context.Context, id int64) (Membership, 
 		&i.MembershipName,
 		&i.MembershipLength,
 		&i.CreatedBy,
+		&i.Version,
 	)
 	return i, err
 }
 
 const getMembershipsByUserID = `-- name: GetMembershipsByUserID :many
-SELECT id, membership_name, membership_length, created_by FROM memberships
+SELECT id, membership_name, membership_length, created_by, version FROM memberships
 WHERE created_by = $1
 `
 
@@ -82,6 +84,7 @@ func (q *Queries) GetMembershipsByUserID(ctx context.Context, createdBy int64) (
 			&i.MembershipName,
 			&i.MembershipLength,
 			&i.CreatedBy,
+			&i.Version,
 		); err != nil {
 			return nil, err
 		}
@@ -96,17 +99,24 @@ func (q *Queries) GetMembershipsByUserID(ctx context.Context, createdBy int64) (
 const updateMembership = `-- name: UpdateMembership :exec
 UPDATE memberships
     set membership_name = $2,
-    membership_length = $3
-WHERE id = $1
+    membership_length = $3,
+    version = version + 1
+WHERE id = $1 AND version = $4
 `
 
 type UpdateMembershipParams struct {
 	ID               int64  `json:"id"`
 	MembershipName   string `json:"membership_name"`
 	MembershipLength int32  `json:"membership_length"`
+	Version          int32  `json:"version"`
 }
 
 func (q *Queries) UpdateMembership(ctx context.Context, arg UpdateMembershipParams) error {
-	_, err := q.db.Exec(ctx, updateMembership, arg.ID, arg.MembershipName, arg.MembershipLength)
+	_, err := q.db.Exec(ctx, updateMembership,
+		arg.ID,
+		arg.MembershipName,
+		arg.MembershipLength,
+		arg.Version,
+	)
 	return err
 }

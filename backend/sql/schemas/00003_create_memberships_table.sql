@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS memberships(
     membership_name TEXT NOT NULL,
     membership_length INT NOT NULL,
     created_by BIGSERIAL NOT NULL,
+    version INT NOT NULL DEFAULT 1,
     FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE CASCADE
 );
 -- +goose StatementEnd

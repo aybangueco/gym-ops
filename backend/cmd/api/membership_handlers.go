@@ -116,8 +116,10 @@ func (app *application) updateMembershipHandler(w http.ResponseWriter, r *http.R
 	defer cancel()
 
 	err = app.db.UpdateMembership(ctx, database.UpdateMembershipParams{
+		ID:               membership.ID,
 		MembershipName:   membership.MembershipName,
 		MembershipLength: membership.MembershipLength,
+		Version:          membership.Version,
 	})
 	if err != nil {
 		app.serverErrorResponse(w, r, err)

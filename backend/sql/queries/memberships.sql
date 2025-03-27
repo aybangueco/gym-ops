@@ -17,8 +17,9 @@ RETURNING *;
 -- name: UpdateMembership :exec
 UPDATE memberships
     set membership_name = $2,
-    membership_length = $3
-WHERE id = $1;
+    membership_length = $3,
+    version = version + 1
+WHERE id = $1 AND version = $4;
 
 -- name: DeleteMembership :exec
 DELETE FROM memberships

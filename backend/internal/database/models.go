@@ -13,6 +13,7 @@ type Membership struct {
 	MembershipName   string `json:"membership_name"`
 	MembershipLength int32  `json:"membership_length"`
 	CreatedBy        int64  `json:"created_by"`
+	Version          int32  `json:"version"`
 }
 
 type User struct {
