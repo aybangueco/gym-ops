@@ -2,10 +2,13 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/jackc/pgx/v5"
 )
 
 func (app *application) recoverPanic(next http.Handler) http.Handler {
@@ -58,8 +61,12 @@ func (app *application) authenticate(next http.Handler) http.Handler {
 
 		user, err := app.db.GetUserById(ctx, parsedTokenClaims.ID)
 		if err != nil {
-			app.serverErrorResponse(w, r, err)
-			return
+			if errors.Is(err, pgx.ErrNoRows) {
+				app.setContextAuthenticatedUser(r, nil)
+			} else {
+				app.serverErrorResponse(w, r, err)
+				return
+			}
 		}
 
 		r = app.setContextAuthenticatedUser(r, &user)

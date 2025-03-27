@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
@@ -95,4 +96,13 @@ func (app *application) decodeBase64(data string) ([]byte, error) {
 	}
 
 	return secretKey, nil
+}
+
+func (app *application) convertStringToInt(data string) (int64, error) {
+	i, err := strconv.ParseInt(data, 10, 64)
+	if err != nil {
+		return 0, err
+	}
+
+	return i, nil
 }

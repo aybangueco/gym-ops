@@ -16,6 +16,7 @@ func (app *application) routes() http.Handler {
 	r.Use(app.recoverPanic)
 	r.Use(middleware.Logger)
 	r.Use(app.authenticate)
+	r.Use(middleware.StripSlashes)
 
 	r.MethodNotAllowed(app.methodNotAllowedResponse)
 	r.NotFound(app.notFoundResponse)
