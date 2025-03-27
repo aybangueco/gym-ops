@@ -12,6 +12,14 @@ import (
 	"github.com/w4keupvan/gym-ops/backend/internal/validator"
 )
 
+func (app *application) currentAuthenticatedHanler(w http.ResponseWriter, r *http.Request) {
+	user := app.getContextAuthenticatedUser(r)
+
+	user.Password = []byte{}
+
+	app.writeJSON(w, http.StatusOK, envelope{"user": user}, nil)
+}
+
 func (app *application) loginHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		Email     string              `json:"email"`
