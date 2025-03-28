@@ -51,21 +51,31 @@ func (q *Queries) CreateMember(ctx context.Context, arg CreateMemberParams) (Mem
 
 const deleteMember = `-- name: DeleteMember :exec
 DELETE FROM members
-WHERE id = $1
+WHERE id = $1 AND created_by = $2
 `
 
-func (q *Queries) DeleteMember(ctx context.Context, id int64) error {
-	_, err := q.db.Exec(ctx, deleteMember, id)
+type DeleteMemberParams struct {
+	ID        int64 `json:"id"`
+	CreatedBy int64 `json:"created_by"`
+}
+
+func (q *Queries) DeleteMember(ctx context.Context, arg DeleteMemberParams) error {
+	_, err := q.db.Exec(ctx, deleteMember, arg.ID, arg.CreatedBy)
 	return err
 }
 
 const getMemberByID = `-- name: GetMemberByID :one
 SELECT id, member_name, member_contact, membership, created_by, membership_start, membership_end FROM members
-WHERE id = $1
+WHERE id = $1 AND created_by = $2
 `
 
-func (q *Queries) GetMemberByID(ctx context.Context, id int64) (Member, error) {
-	row := q.db.QueryRow(ctx, getMemberByID, id)
+type GetMemberByIDParams struct {
+	ID        int64 `json:"id"`
+	CreatedBy int64 `json:"created_by"`
+}
+
+func (q *Queries) GetMemberByID(ctx context.Context, arg GetMemberByIDParams) (Member, error) {
+	row := q.db.QueryRow(ctx, getMemberByID, arg.ID, arg.CreatedBy)
 	var i Member
 	err := row.Scan(
 		&i.ID,
@@ -81,17 +91,18 @@ func (q *Queries) GetMemberByID(ctx context.Context, id int64) (Member, error) {
 
 const updateMember = `-- name: UpdateMember :one
 UPDATE members
-    set member_name = $2,
-    member_contact = $3,
-    membership = $4,
-    membership_start = $5,
-    membership_end = $6
-WHERE id = $1
+    set member_name = $3,
+    member_contact = $4,
+    membership = $5,
+    membership_start = $6,
+    membership_end = $7
+WHERE id = $1 AND created_by = $2
 RETURNING membership_start, membership_end
 `
 
 type UpdateMemberParams struct {
 	ID              int64      `json:"id"`
+	CreatedBy       int64      `json:"created_by"`
 	MemberName      string     `json:"member_name"`
 	MemberContact   string     `json:"member_contact"`
 	Membership      int64      `json:"membership"`
@@ -107,6 +118,7 @@ type UpdateMemberRow struct {
 func (q *Queries) UpdateMember(ctx context.Context, arg UpdateMemberParams) (UpdateMemberRow, error) {
 	row := q.db.QueryRow(ctx, updateMember,
 		arg.ID,
+		arg.CreatedBy,
 		arg.MemberName,
 		arg.MemberContact,
 		arg.Membership,

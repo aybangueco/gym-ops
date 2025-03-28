@@ -39,7 +39,9 @@ func (app *application) createMemberHandler(w http.ResponseWriter, r *http.Reque
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	membership, err := app.db.GetMembershipByID(ctx, input.Membership)
+	user := app.getContextAuthenticatedUser(r)
+
+	membership, err := app.db.GetMembershipByID(ctx, database.GetMembershipByIDParams{ID: input.Membership, CreatedBy: user.ID})
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			input.Validator.AddFieldError("membership", "existing membership not found")
@@ -50,8 +52,6 @@ func (app *application) createMemberHandler(w http.ResponseWriter, r *http.Reque
 			return
 		}
 	}
-
-	user := app.getContextAuthenticatedUser(r)
 
 	ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -111,10 +111,12 @@ func (app *application) updateMemberHandler(w http.ResponseWriter, r *http.Reque
 		}
 	}
 
+	user := app.getContextAuthenticatedUser(r)
+
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	member, err := app.db.GetMemberByID(ctx, i)
+	member, err := app.db.GetMemberByID(ctx, database.GetMemberByIDParams{ID: i, CreatedBy: user.ID})
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			input.Validator.AddError("existing member not found")
@@ -129,7 +131,7 @@ func (app *application) updateMemberHandler(w http.ResponseWriter, r *http.Reque
 	ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	membership, err := app.db.GetMembershipByID(ctx, *input.Membership)
+	membership, err := app.db.GetMembershipByID(ctx, database.GetMembershipByIDParams{ID: *input.Membership, CreatedBy: user.ID})
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			input.Validator.AddFieldError("membership", "existing membership not found")
@@ -190,10 +192,12 @@ func (app *application) deleteMemberHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
+	user := app.getContextAuthenticatedUser(r)
+
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	_, err = app.db.GetMemberByID(ctx, i)
+	_, err = app.db.GetMemberByID(ctx, database.GetMemberByIDParams{ID: i, CreatedBy: user.ID})
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			app.notFoundResponse(w, r)
@@ -207,7 +211,7 @@ func (app *application) deleteMemberHandler(w http.ResponseWriter, r *http.Reque
 	ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	err = app.db.DeleteMember(ctx, i)
+	err = app.db.DeleteMember(ctx, database.DeleteMemberParams{ID: i, CreatedBy: user.ID})
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			app.notFoundResponse(w, r)

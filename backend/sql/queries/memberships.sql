@@ -4,7 +4,7 @@ WHERE created_by = $1;
 
 -- name: GetMembershipByID :one
 SELECT * FROM memberships
-WHERE id = $1;
+WHERE id = $1 AND created_by = $2;
 
 -- name: CreateMembership :one
 INSERT INTO memberships (
@@ -16,12 +16,12 @@ RETURNING *;
 
 -- name: UpdateMembership :one
 UPDATE memberships
-    set membership_name = $2,
-    membership_length = $3,
+    set membership_name = $4,
+    membership_length = $5,
     version = version + 1
-WHERE id = $1 AND version = $4
+WHERE id = $1 AND created_by = $2 AND version = $3
 RETURNING version;
 
 -- name: DeleteMembership :exec
 DELETE FROM memberships
-WHERE id = $1;
+WHERE id = $1 AND created_by = $2;

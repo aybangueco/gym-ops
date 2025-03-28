@@ -39,21 +39,31 @@ func (q *Queries) CreateMembership(ctx context.Context, arg CreateMembershipPara
 
 const deleteMembership = `-- name: DeleteMembership :exec
 DELETE FROM memberships
-WHERE id = $1
+WHERE id = $1 AND created_by = $2
 `
 
-func (q *Queries) DeleteMembership(ctx context.Context, id int64) error {
-	_, err := q.db.Exec(ctx, deleteMembership, id)
+type DeleteMembershipParams struct {
+	ID        int64 `json:"id"`
+	CreatedBy int64 `json:"created_by"`
+}
+
+func (q *Queries) DeleteMembership(ctx context.Context, arg DeleteMembershipParams) error {
+	_, err := q.db.Exec(ctx, deleteMembership, arg.ID, arg.CreatedBy)
 	return err
 }
 
 const getMembershipByID = `-- name: GetMembershipByID :one
 SELECT id, membership_name, membership_length, created_by, version FROM memberships
-WHERE id = $1
+WHERE id = $1 AND created_by = $2
 `
 
-func (q *Queries) GetMembershipByID(ctx context.Context, id int64) (Membership, error) {
-	row := q.db.QueryRow(ctx, getMembershipByID, id)
+type GetMembershipByIDParams struct {
+	ID        int64 `json:"id"`
+	CreatedBy int64 `json:"created_by"`
+}
+
+func (q *Queries) GetMembershipByID(ctx context.Context, arg GetMembershipByIDParams) (Membership, error) {
+	row := q.db.QueryRow(ctx, getMembershipByID, arg.ID, arg.CreatedBy)
 	var i Membership
 	err := row.Scan(
 		&i.ID,
@@ -98,26 +108,28 @@ func (q *Queries) GetMembershipsByUserID(ctx context.Context, createdBy int64) (
 
 const updateMembership = `-- name: UpdateMembership :one
 UPDATE memberships
-    set membership_name = $2,
-    membership_length = $3,
+    set membership_name = $4,
+    membership_length = $5,
     version = version + 1
-WHERE id = $1 AND version = $4
+WHERE id = $1 AND created_by = $2 AND version = $3
 RETURNING version
 `
 
 type UpdateMembershipParams struct {
 	ID               int64  `json:"id"`
+	CreatedBy        int64  `json:"created_by"`
+	Version          int32  `json:"version"`
 	MembershipName   string `json:"membership_name"`
 	MembershipLength *int32 `json:"membership_length"`
-	Version          int32  `json:"version"`
 }
 
 func (q *Queries) UpdateMembership(ctx context.Context, arg UpdateMembershipParams) (int32, error) {
 	row := q.db.QueryRow(ctx, updateMembership,
 		arg.ID,
+		arg.CreatedBy,
+		arg.Version,
 		arg.MembershipName,
 		arg.MembershipLength,
-		arg.Version,
 	)
 	var version int32
 	err := row.Scan(&version)

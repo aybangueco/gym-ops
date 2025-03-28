@@ -80,9 +80,6 @@ func (app *application) updateMembershipHandler(w http.ResponseWriter, r *http.R
 
 	membershipID := chi.URLParam(r, "id")
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
 	i, err := app.convertStringToInt(membershipID)
 	if err != nil {
 		if errors.Is(err, strconv.ErrSyntax) {
@@ -94,7 +91,12 @@ func (app *application) updateMembershipHandler(w http.ResponseWriter, r *http.R
 		}
 	}
 
-	membership, err := app.db.GetMembershipByID(ctx, i)
+	user := app.getContextAuthenticatedUser(r)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	membership, err := app.db.GetMembershipByID(ctx, database.GetMembershipByIDParams{ID: i, CreatedBy: user.ID})
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			app.notFoundResponse(w, r)
@@ -143,9 +145,6 @@ func (app *application) updateMembershipHandler(w http.ResponseWriter, r *http.R
 func (app *application) deleteMembershipHandler(w http.ResponseWriter, r *http.Request) {
 	membershipID := chi.URLParam(r, "id")
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
 	i, err := app.convertStringToInt(membershipID)
 	if err != nil {
 		if errors.Is(err, strconv.ErrSyntax) {
@@ -157,7 +156,12 @@ func (app *application) deleteMembershipHandler(w http.ResponseWriter, r *http.R
 		}
 	}
 
-	_, err = app.db.GetMembershipByID(ctx, i)
+	user := app.getContextAuthenticatedUser(r)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	_, err = app.db.GetMembershipByID(ctx, database.GetMembershipByIDParams{ID: i, CreatedBy: user.ID})
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			app.notFoundResponse(w, r)
@@ -170,7 +174,7 @@ func (app *application) deleteMembershipHandler(w http.ResponseWriter, r *http.R
 	ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	err = app.db.DeleteMembership(ctx, i)
+	err = app.db.DeleteMembership(ctx, database.DeleteMembershipParams{ID: i, CreatedBy: user.ID})
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
