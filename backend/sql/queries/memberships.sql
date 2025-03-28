@@ -1,4 +1,4 @@
--- name: GetMembershipsByUserID :many
+-- name: GetMemberships :many
 SELECT * FROM memberships
 WHERE created_by = $1;
 

@@ -89,6 +89,39 @@ func (q *Queries) GetMemberByID(ctx context.Context, arg GetMemberByIDParams) (M
 	return i, err
 }
 
+const getMembers = `-- name: GetMembers :many
+SELECT id, member_name, member_contact, membership, created_by, membership_start, membership_end FROM members
+WHERE created_by = $1
+`
+
+func (q *Queries) GetMembers(ctx context.Context, createdBy int64) ([]Member, error) {
+	rows, err := q.db.Query(ctx, getMembers, createdBy)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Member
+	for rows.Next() {
+		var i Member
+		if err := rows.Scan(
+			&i.ID,
+			&i.MemberName,
+			&i.MemberContact,
+			&i.Membership,
+			&i.CreatedBy,
+			&i.MembershipStart,
+			&i.MembershipEnd,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updateMember = `-- name: UpdateMember :one
 UPDATE members
     set member_name = $3,

@@ -13,6 +13,60 @@ import (
 	"github.com/w4keupvan/gym-ops/backend/internal/validator"
 )
 
+func (app *application) getMembersHandler(w http.ResponseWriter, r *http.Request) {
+	user := app.getContextAuthenticatedUser(r)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	members, err := app.db.GetMembers(ctx, user.ID)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"members": members}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}
+
+func (app *application) getMemberByID(w http.ResponseWriter, r *http.Request) {
+	user := app.getContextAuthenticatedUser(r)
+
+	memberID := chi.URLParam(r, "id")
+
+	i, err := app.convertStringToInt(memberID)
+	if err != nil {
+		if errors.Is(err, strconv.ErrSyntax) {
+			app.invalidParameterIDResponse(w, r)
+			return
+		} else {
+			app.serverErrorResponse(w, r, err)
+			return
+		}
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	member, err := app.db.GetMemberByID(ctx, database.GetMemberByIDParams{ID: i, CreatedBy: user.ID})
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			app.notFoundResponse(w, r)
+			return
+		} else {
+			app.serverErrorResponse(w, r, err)
+			return
+		}
+	}
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"member": member}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}
+
 func (app *application) createMemberHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		MemberName    string              `json:"member_name"`

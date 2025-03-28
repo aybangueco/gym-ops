@@ -1,3 +1,7 @@
+-- name: GetMembers :many
+SELECT * FROM members
+WHERE created_by = $1;
+
 -- name: GetMemberByID :one
 SELECT * FROM members
 WHERE id = $1 AND created_by = $2;

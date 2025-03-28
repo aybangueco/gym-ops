@@ -13,19 +13,55 @@ import (
 	"github.com/w4keupvan/gym-ops/backend/internal/validator"
 )
 
-func (app *application) getMembershipsCreatedByUserHandler(w http.ResponseWriter, r *http.Request) {
+func (app *application) getMembershipsHandler(w http.ResponseWriter, r *http.Request) {
 	user := app.getContextAuthenticatedUser(r)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	memberships, err := app.db.GetMembershipsByUserID(ctx, user.ID)
+	memberships, err := app.db.GetMemberships(ctx, user.ID)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
 	}
 
 	app.writeJSON(w, http.StatusOK, envelope{"memberships": memberships}, nil)
+}
+
+func (app *application) getMembershipByID(w http.ResponseWriter, r *http.Request) {
+	user := app.getContextAuthenticatedUser(r)
+
+	membershipID := chi.URLParam(r, "id")
+
+	i, err := app.convertStringToInt(membershipID)
+	if err != nil {
+		if errors.Is(err, strconv.ErrSyntax) {
+			app.invalidParameterIDResponse(w, r)
+			return
+		} else {
+			app.serverErrorResponse(w, r, err)
+			return
+		}
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	membership, err := app.db.GetMembershipByID(ctx, database.GetMembershipByIDParams{ID: i, CreatedBy: user.ID})
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			app.notFoundResponse(w, r)
+			return
+		} else {
+			app.serverErrorResponse(w, r, err)
+			return
+		}
+	}
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"membership": membership}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
 }
 
 func (app *application) createMembershipHandler(w http.ResponseWriter, r *http.Request) {

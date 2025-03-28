@@ -75,13 +75,13 @@ func (q *Queries) GetMembershipByID(ctx context.Context, arg GetMembershipByIDPa
 	return i, err
 }
 
-const getMembershipsByUserID = `-- name: GetMembershipsByUserID :many
+const getMemberships = `-- name: GetMemberships :many
 SELECT id, membership_name, membership_length, created_by, version FROM memberships
 WHERE created_by = $1
 `
 
-func (q *Queries) GetMembershipsByUserID(ctx context.Context, createdBy int64) ([]Membership, error) {
-	rows, err := q.db.Query(ctx, getMembershipsByUserID, createdBy)
+func (q *Queries) GetMemberships(ctx context.Context, createdBy int64) ([]Membership, error) {
+	rows, err := q.db.Query(ctx, getMemberships, createdBy)
 	if err != nil {
 		return nil, err
 	}
