@@ -20,7 +20,7 @@ RETURNING id, membership_name, membership_length, created_by, version
 
 type CreateMembershipParams struct {
 	MembershipName   string `json:"membership_name"`
-	MembershipLength int32  `json:"membership_length"`
+	MembershipLength *int32 `json:"membership_length"`
 	CreatedBy        int64  `json:"created_by"`
 }
 
@@ -108,7 +108,7 @@ RETURNING version
 type UpdateMembershipParams struct {
 	ID               int64  `json:"id"`
 	MembershipName   string `json:"membership_name"`
-	MembershipLength int32  `json:"membership_length"`
+	MembershipLength *int32 `json:"membership_length"`
 	Version          int32  `json:"version"`
 }
 
