@@ -64,3 +64,8 @@ func (app *application) failedValidationResponse(w http.ResponseWriter, r *http.
 		app.serverErrorResponse(w, r, err)
 	}
 }
+
+func (app *application) invalidParameterIDResponse(w http.ResponseWriter, r *http.Request) {
+	message := "id must be an integer"
+	app.errorResponse(w, r, http.StatusBadRequest, message)
+}

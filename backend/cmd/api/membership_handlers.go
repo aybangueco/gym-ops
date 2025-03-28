@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -41,7 +42,7 @@ func (app *application) createMembershipHandler(w http.ResponseWriter, r *http.R
 	}
 
 	input.Validator.CheckField(input.MembershipName != "", "membership_name", "membership name field is required")
-	input.Validator.CheckField(input.MembershipLength != 0, "membership_length", "membership length field is required")
+	input.Validator.CheckField(input.MembershipLength >= 0, "membership_length", "membership length field is required")
 
 	if input.Validator.HasErrors() {
 		app.failedValidationResponse(w, r, input.Validator)
@@ -55,7 +56,7 @@ func (app *application) createMembershipHandler(w http.ResponseWriter, r *http.R
 
 	membership, err := app.db.CreateMembership(ctx, database.CreateMembershipParams{
 		MembershipName:   input.MembershipName,
-		MembershipLength: input.MembershipLength,
+		MembershipLength: &input.MembershipLength,
 		CreatedBy:        user.ID,
 	})
 
@@ -84,8 +85,13 @@ func (app *application) updateMembershipHandler(w http.ResponseWriter, r *http.R
 
 	i, err := app.convertStringToInt(membershipID)
 	if err != nil {
-		app.badRequestResponse(w, r, err)
-		return
+		if errors.Is(err, strconv.ErrSyntax) {
+			app.invalidParameterIDResponse(w, r)
+			return
+		} else {
+			app.serverErrorResponse(w, r, err)
+			return
+		}
 	}
 
 	membership, err := app.db.GetMembershipByID(ctx, i)
@@ -109,7 +115,7 @@ func (app *application) updateMembershipHandler(w http.ResponseWriter, r *http.R
 	}
 
 	if input.MembershipLength != nil {
-		membership.MembershipLength = *input.MembershipLength
+		membership.MembershipLength = input.MembershipLength
 	}
 
 	ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
@@ -142,8 +148,13 @@ func (app *application) deleteMembershipHandler(w http.ResponseWriter, r *http.R
 
 	i, err := app.convertStringToInt(membershipID)
 	if err != nil {
-		app.badRequestResponse(w, r, err)
-		return
+		if errors.Is(err, strconv.ErrSyntax) {
+			app.invalidParameterIDResponse(w, r)
+			return
+		} else {
+			app.serverErrorResponse(w, r, err)
+			return
+		}
 	}
 
 	_, err = app.db.GetMembershipByID(ctx, i)
