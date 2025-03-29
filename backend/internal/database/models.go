@@ -8,8 +8,6 @@ import (
 	"database/sql/driver"
 	"fmt"
 	"time"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type OtpType string
@@ -73,11 +71,11 @@ type Membership struct {
 }
 
 type Otp struct {
-	ID        int64       `json:"id"`
-	Code      int64       `json:"code"`
-	Type      OtpType     `json:"type"`
-	ExpiresAt *time.Time  `json:"expires_at"`
-	UserID    pgtype.Int8 `json:"user_id"`
+	ID        int64      `json:"id"`
+	Code      int64      `json:"code"`
+	Type      OtpType    `json:"type"`
+	ExpiresAt *time.Time `json:"expires_at"`
+	UserID    int64      `json:"user_id"`
 }
 
 type User struct {

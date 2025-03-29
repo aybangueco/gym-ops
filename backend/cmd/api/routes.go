@@ -26,18 +26,20 @@ func (app *application) routes() http.Handler {
 	r.Get("/api/auth/me", app.requireAuthenticated(app.currentAuthenticatedHandler))
 	r.Post("/api/login", app.loginHandler)
 	r.Post("/api/register", app.registerHandler)
+	r.Post("/api/verify", app.requireAuthenticated(app.verifyEmailHandler))
+	r.Post("/api/resend-verify", app.requireAuthenticated(app.resendEmailOtpHandler))
 
-	r.Get("/api/memberships", app.requireAuthenticated(app.getMembershipsHandler))
-	r.Get("/api/memberships/{id}", app.requireAuthenticated(app.getMembershipByID))
-	r.Post("/api/memberships", app.requireAuthenticated(app.createMembershipHandler))
-	r.Put("/api/memberships/{id}", app.requireAuthenticated(app.updateMembershipHandler))
-	r.Delete("/api/memberships/{id}", app.requireAuthenticated(app.deleteMembershipHandler))
+	r.Get("/api/memberships", app.requireActivated(app.getMembershipsHandler))
+	r.Get("/api/memberships/{id}", app.requireActivated(app.getMembershipByID))
+	r.Post("/api/memberships", app.requireActivated(app.createMembershipHandler))
+	r.Put("/api/memberships/{id}", app.requireActivated(app.updateMembershipHandler))
+	r.Delete("/api/memberships/{id}", app.requireActivated(app.deleteMembershipHandler))
 
-	r.Get("/api/members", app.requireAuthenticated(app.getMembersHandler))
-	r.Get("/api/members/{id}", app.requireAuthenticated(app.getMemberByID))
-	r.Post("/api/members", app.requireAuthenticated(app.createMemberHandler))
-	r.Put("/api/members/{id}", app.requireAuthenticated(app.updateMemberHandler))
-	r.Delete("/api/members/{id}", app.requireAuthenticated(app.deleteMemberHandler))
+	r.Get("/api/members", app.requireActivated(app.getMembersHandler))
+	r.Get("/api/members/{id}", app.requireActivated(app.getMemberByID))
+	r.Post("/api/members", app.requireActivated(app.createMemberHandler))
+	r.Put("/api/members/{id}", app.requireActivated(app.updateMemberHandler))
+	r.Delete("/api/members/{id}", app.requireActivated(app.deleteMemberHandler))
 
 	return r
 }

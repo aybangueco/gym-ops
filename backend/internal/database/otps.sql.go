@@ -7,8 +7,6 @@ package database
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createOtp = `-- name: CreateOtp :one
@@ -20,9 +18,9 @@ INSERT INTO otps (
 `
 
 type CreateOtpParams struct {
-	Code   int64       `json:"code"`
-	Type   OtpType     `json:"type"`
-	UserID pgtype.Int8 `json:"user_id"`
+	Code   int64   `json:"code"`
+	Type   OtpType `json:"type"`
+	UserID int64   `json:"user_id"`
 }
 
 func (q *Queries) CreateOtp(ctx context.Context, arg CreateOtpParams) (Otp, error) {
@@ -38,12 +36,12 @@ func (q *Queries) CreateOtp(ctx context.Context, arg CreateOtpParams) (Otp, erro
 	return i, err
 }
 
-const deleteOtp = `-- name: DeleteOtp :exec
-DELETE FROM otps WHERE code = $1
+const deleteOtps = `-- name: DeleteOtps :exec
+DELETE FROM otps WHERE user_id = $1
 `
 
-func (q *Queries) DeleteOtp(ctx context.Context, code int64) error {
-	_, err := q.db.Exec(ctx, deleteOtp, code)
+func (q *Queries) DeleteOtps(ctx context.Context, userID int64) error {
+	_, err := q.db.Exec(ctx, deleteOtps, userID)
 	return err
 }
 

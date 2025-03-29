@@ -58,6 +58,16 @@ func (app *application) requiredAuthenticatedResponse(w http.ResponseWriter, r *
 	app.errorResponse(w, r, http.StatusUnauthorized, message)
 }
 
+func (app *application) requiredActivatedResponse(w http.ResponseWriter, r *http.Request) {
+	message := "you need to be activated in-order to access this resource"
+	app.errorResponse(w, r, http.StatusUnauthorized, message)
+}
+
+func (app *application) emailAlreadyActivatedResponse(w http.ResponseWriter, r *http.Request) {
+	message := "user email is already activated"
+	app.errorResponse(w, r, http.StatusBadRequest, message)
+}
+
 func (app *application) invalidAuthDetailsResponse(w http.ResponseWriter, r *http.Request) {
 	message := "invalid email or password"
 	app.errorResponse(w, r, http.StatusUnauthorized, message)

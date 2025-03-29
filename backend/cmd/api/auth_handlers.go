@@ -152,8 +152,9 @@ func (app *application) registerHandler(w http.ResponseWriter, r *http.Request) 
 	code := app.generateOTP(6)
 
 	otp, err := app.db.CreateOtp(ctx, database.CreateOtpParams{
-		Code: code,
-		Type: database.OtpTypeEmailVerification,
+		Code:   code,
+		Type:   database.OtpTypeEmailVerification,
+		UserID: user.ID,
 	})
 
 	if err != nil {
