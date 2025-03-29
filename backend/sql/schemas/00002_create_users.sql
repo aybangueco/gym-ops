@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS users(
     name TEXT NOT NULL,
     email CITEXT UNIQUE NOT NULL,
     password bytea NOT NULL,
+    activated BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT current_timestamp,
     updated_at TIMESTAMP DEFAULT current_timestamp,
     version BIGINT NOT NULL DEFAULT 1

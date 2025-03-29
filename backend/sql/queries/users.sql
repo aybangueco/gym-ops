@@ -16,10 +16,12 @@ RETURNING *;
 
 -- name: UpdateUser :exec
 UPDATE users
-    set name = $1,
-    email = $2,
-    password = $3
-WHERE id = $1;
+    set name = $3,
+    email = $4,
+    password = $5,
+    activated = $6,
+    version = version + 1
+WHERE id = $1 AND version = $2;
 
 -- name: DeleteUser :exec
 DELETE FROM users

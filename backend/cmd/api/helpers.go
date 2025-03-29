@@ -1,11 +1,14 @@
 package main
 
 import (
+	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
+	"math"
+	"math/big"
 	"net/http"
 	"strconv"
 	"strings"
@@ -105,4 +108,32 @@ func (app *application) convertStringToInt(data string) (int64, error) {
 	}
 
 	return i, nil
+}
+
+func (app *application) background(fn func()) {
+	app.wg.Add(1)
+
+	go func() {
+		defer app.wg.Done()
+
+		defer func() {
+			if err := recover(); err != nil {
+				app.logger.Error(fmt.Sprintf("%v", err))
+			}
+		}()
+
+		fn()
+	}()
+}
+
+func (app *application) generateOTP(maxDigits uint32) int64 {
+	bi, err := rand.Int(
+		rand.Reader,
+		big.NewInt(int64(math.Pow(10, float64(maxDigits)))),
+	)
+	if err != nil {
+		panic(err)
+	}
+
+	return bi.Int64()
 }

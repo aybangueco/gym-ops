@@ -15,7 +15,7 @@ INSERT INTO users (
 ) VALUES (
     $1, $2, $3
 )
-RETURNING id, name, email, password, created_at, updated_at, version
+RETURNING id, name, email, password, activated, created_at, updated_at, version
 `
 
 type CreateUserParams struct {
@@ -32,6 +32,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.Name,
 		&i.Email,
 		&i.Password,
+		&i.Activated,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Version,
@@ -50,7 +51,7 @@ func (q *Queries) DeleteUser(ctx context.Context, id int64) error {
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, name, email, password, created_at, updated_at, version FROM users
+SELECT id, name, email, password, activated, created_at, updated_at, version FROM users
 WHERE email = $1 LIMIT 1
 `
 
@@ -62,6 +63,7 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 		&i.Name,
 		&i.Email,
 		&i.Password,
+		&i.Activated,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Version,
@@ -70,7 +72,7 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 }
 
 const getUserById = `-- name: GetUserById :one
-SELECT id, name, email, password, created_at, updated_at, version FROM users
+SELECT id, name, email, password, activated, created_at, updated_at, version FROM users
 WHERE id = $1 LIMIT 1
 `
 
@@ -82,6 +84,7 @@ func (q *Queries) GetUserById(ctx context.Context, id int64) (User, error) {
 		&i.Name,
 		&i.Email,
 		&i.Password,
+		&i.Activated,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Version,
@@ -91,19 +94,31 @@ func (q *Queries) GetUserById(ctx context.Context, id int64) (User, error) {
 
 const updateUser = `-- name: UpdateUser :exec
 UPDATE users
-    set name = $1,
-    email = $2,
-    password = $3
-WHERE id = $1
+    set name = $3,
+    email = $4,
+    password = $5,
+    activated = $6,
+    version = version + 1
+WHERE id = $1 AND version = $2
 `
 
 type UpdateUserParams struct {
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Password []byte `json:"password"`
+	ID        int64  `json:"id"`
+	Version   int64  `json:"version"`
+	Name      string `json:"name"`
+	Email     string `json:"email"`
+	Password  []byte `json:"password"`
+	Activated bool   `json:"activated"`
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error {
-	_, err := q.db.Exec(ctx, updateUser, arg.Name, arg.Email, arg.Password)
+	_, err := q.db.Exec(ctx, updateUser,
+		arg.ID,
+		arg.Version,
+		arg.Name,
+		arg.Email,
+		arg.Password,
+		arg.Activated,
+	)
 	return err
 }

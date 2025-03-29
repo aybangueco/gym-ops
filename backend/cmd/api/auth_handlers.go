@@ -146,6 +146,34 @@ func (app *application) registerHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	ctx, cancel = context.WithTimeout(r.Context(), 5*time.Second)
+	defer cancel()
+
+	code := app.generateOTP(6)
+
+	otp, err := app.db.CreateOtp(ctx, database.CreateOtpParams{
+		Code: code,
+		Type: database.OtpTypeEmailVerification,
+	})
+
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	app.background(func() {
+		data := map[string]any{
+			"code": otp.Code,
+			"name": user.Name,
+		}
+
+		err := app.mail.Send(user.Email, "welcome.tmpl", data)
+		if err != nil {
+			app.serverErrorResponse(w, r, err)
+			return
+		}
+	})
+
 	user.Password = []byte{}
 
 	err = app.writeJSON(w, http.StatusCreated, user, nil)
