@@ -23,6 +23,6 @@ UPDATE members
 WHERE id = $1 AND created_by = $2
 RETURNING membership_start, membership_end;
 
--- name: DeleteMember :exec
+-- name: DeleteMember :execresult
 DELETE FROM members
 WHERE id = $1 AND created_by = $2;

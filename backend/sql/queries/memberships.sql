@@ -22,6 +22,6 @@ UPDATE memberships
 WHERE id = $1 AND created_by = $2 AND version = $3
 RETURNING version;
 
--- name: DeleteMembership :exec
+-- name: DeleteMembership :execresult
 DELETE FROM memberships
 WHERE id = $1 AND created_by = $2;

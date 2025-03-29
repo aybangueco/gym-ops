@@ -197,22 +197,14 @@ func (app *application) deleteMembershipHandler(w http.ResponseWriter, r *http.R
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	_, err = app.db.GetMembershipByID(ctx, database.GetMembershipByIDParams{ID: i, CreatedBy: user.ID})
+	result, err := app.db.DeleteMembership(ctx, database.DeleteMembershipParams{ID: i, CreatedBy: user.ID})
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			app.notFoundResponse(w, r)
-			return
-		}
 		app.serverErrorResponse(w, r, err)
 		return
 	}
 
-	ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	err = app.db.DeleteMembership(ctx, database.DeleteMembershipParams{ID: i, CreatedBy: user.ID})
-	if err != nil {
-		app.serverErrorResponse(w, r, err)
+	if result.RowsAffected() == 0 {
+		app.notFoundResponse(w, r)
 		return
 	}
 

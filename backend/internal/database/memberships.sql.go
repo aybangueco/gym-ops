@@ -7,6 +7,8 @@ package database
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 const createMembership = `-- name: CreateMembership :one
@@ -37,7 +39,7 @@ func (q *Queries) CreateMembership(ctx context.Context, arg CreateMembershipPara
 	return i, err
 }
 
-const deleteMembership = `-- name: DeleteMembership :exec
+const deleteMembership = `-- name: DeleteMembership :execresult
 DELETE FROM memberships
 WHERE id = $1 AND created_by = $2
 `
@@ -47,9 +49,8 @@ type DeleteMembershipParams struct {
 	CreatedBy int64 `json:"created_by"`
 }
 
-func (q *Queries) DeleteMembership(ctx context.Context, arg DeleteMembershipParams) error {
-	_, err := q.db.Exec(ctx, deleteMembership, arg.ID, arg.CreatedBy)
-	return err
+func (q *Queries) DeleteMembership(ctx context.Context, arg DeleteMembershipParams) (pgconn.CommandTag, error) {
+	return q.db.Exec(ctx, deleteMembership, arg.ID, arg.CreatedBy)
 }
 
 const getMembershipByID = `-- name: GetMembershipByID :one

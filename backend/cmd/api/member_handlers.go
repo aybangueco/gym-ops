@@ -251,29 +251,15 @@ func (app *application) deleteMemberHandler(w http.ResponseWriter, r *http.Reque
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	_, err = app.db.GetMemberByID(ctx, database.GetMemberByIDParams{ID: i, CreatedBy: user.ID})
+	result, err := app.db.DeleteMember(ctx, database.DeleteMemberParams{ID: i, CreatedBy: user.ID})
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			app.notFoundResponse(w, r)
-			return
-		} else {
-			app.serverErrorResponse(w, r, err)
-			return
-		}
+		app.serverErrorResponse(w, r, err)
+		return
 	}
 
-	ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	err = app.db.DeleteMember(ctx, database.DeleteMemberParams{ID: i, CreatedBy: user.ID})
-	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			app.notFoundResponse(w, r)
-			return
-		} else {
-			app.serverErrorResponse(w, r, err)
-			return
-		}
+	if result.RowsAffected() == 0 {
+		app.notFoundResponse(w, r)
+		return
 	}
 
 	err = app.writeJSON(w, http.StatusOK, envelope{"message": "member deleted successfully"}, nil)
