@@ -16,7 +16,7 @@ import (
 func (app *application) getMembershipsHandler(w http.ResponseWriter, r *http.Request) {
 	user := app.getContextAuthenticatedUser(r)
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
 
 	memberships, err := app.db.GetMemberships(ctx, user.ID)
@@ -48,7 +48,7 @@ func (app *application) getMembershipByID(w http.ResponseWriter, r *http.Request
 		}
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
 
 	membership, err := app.db.GetMembershipByID(ctx, database.GetMembershipByIDParams{ID: i, CreatedBy: user.ID})
@@ -91,7 +91,7 @@ func (app *application) createMembershipHandler(w http.ResponseWriter, r *http.R
 
 	user := app.getContextAuthenticatedUser(r)
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
 
 	membership, err := app.db.CreateMembership(ctx, database.CreateMembershipParams{
@@ -133,7 +133,7 @@ func (app *application) updateMembershipHandler(w http.ResponseWriter, r *http.R
 
 	user := app.getContextAuthenticatedUser(r)
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
 
 	membership, err := app.db.GetMembershipByID(ctx, database.GetMembershipByIDParams{ID: i, CreatedBy: user.ID})
@@ -160,7 +160,7 @@ func (app *application) updateMembershipHandler(w http.ResponseWriter, r *http.R
 		membership.MembershipLength = input.MembershipLength
 	}
 
-	ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel = context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
 
 	v, err := app.db.UpdateMembership(ctx, database.UpdateMembershipParams{
@@ -198,7 +198,7 @@ func (app *application) deleteMembershipHandler(w http.ResponseWriter, r *http.R
 
 	user := app.getContextAuthenticatedUser(r)
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
 
 	result, err := app.db.DeleteMembership(ctx, database.DeleteMembershipParams{ID: i, CreatedBy: user.ID})

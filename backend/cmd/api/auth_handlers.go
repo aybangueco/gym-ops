@@ -40,7 +40,7 @@ func (app *application) loginHandler(w http.ResponseWriter, r *http.Request) {
 	input.Validator.CheckField(validator.IsEmail(input.Email), "email", "invalid email format")
 	input.Validator.CheckField(len(input.Password) > 8, "password", "password must be greater than 8 characters")
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
 
 	user, err := app.db.GetUserByEmail(ctx, input.Email)
@@ -109,7 +109,7 @@ func (app *application) registerHandler(w http.ResponseWriter, r *http.Request) 
 	input.Validator.CheckField(validator.IsEmail(input.Email), "email", "invalid email format")
 	input.Validator.CheckField(len(input.Password) > 8, "password", "password must be greater than 8 characters")
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
 
 	_, err = app.db.GetUserByEmail(ctx, input.Email)
@@ -132,7 +132,7 @@ func (app *application) registerHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel = context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
 
 	user, err := app.db.CreateUser(ctx, database.CreateUserParams{

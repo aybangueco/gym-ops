@@ -56,7 +56,7 @@ func (app *application) authenticate(next http.Handler) http.Handler {
 			return
 		}
 
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 		defer cancel()
 
 		user, err := app.db.GetUserById(ctx, parsedTokenClaims.ID)

@@ -16,7 +16,7 @@ import (
 func (app *application) getMembersHandler(w http.ResponseWriter, r *http.Request) {
 	user := app.getContextAuthenticatedUser(r)
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
 
 	members, err := app.db.GetMembers(ctx, user.ID)
@@ -51,7 +51,7 @@ func (app *application) getMemberByID(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
 
 	member, err := app.db.GetMemberByID(ctx, database.GetMemberByIDParams{ID: i, CreatedBy: user.ID})
@@ -94,7 +94,7 @@ func (app *application) createMemberHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
 
 	user := app.getContextAuthenticatedUser(r)
@@ -111,7 +111,7 @@ func (app *application) createMemberHandler(w http.ResponseWriter, r *http.Reque
 		}
 	}
 
-	ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel = context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
 
 	membershipStart := time.Now()
@@ -171,7 +171,7 @@ func (app *application) updateMemberHandler(w http.ResponseWriter, r *http.Reque
 
 	user := app.getContextAuthenticatedUser(r)
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
 
 	member, err := app.db.GetMemberByID(ctx, database.GetMemberByIDParams{ID: i, CreatedBy: user.ID})
@@ -186,7 +186,7 @@ func (app *application) updateMemberHandler(w http.ResponseWriter, r *http.Reque
 		}
 	}
 
-	ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel = context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
 
 	membership, err := app.db.GetMembershipByID(ctx, database.GetMembershipByIDParams{ID: *input.Membership, CreatedBy: user.ID})
@@ -218,7 +218,7 @@ func (app *application) updateMemberHandler(w http.ResponseWriter, r *http.Reque
 		member.MembershipEnd = &membershipEnd
 	}
 
-	ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel = context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
 
 	updatedMember, err := app.db.UpdateMember(ctx, database.UpdateMemberParams{
@@ -252,7 +252,7 @@ func (app *application) deleteMemberHandler(w http.ResponseWriter, r *http.Reque
 
 	user := app.getContextAuthenticatedUser(r)
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
 
 	result, err := app.db.DeleteMember(ctx, database.DeleteMemberParams{ID: i, CreatedBy: user.ID})
