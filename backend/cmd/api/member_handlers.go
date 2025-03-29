@@ -25,6 +25,10 @@ func (app *application) getMembersHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	if members == nil {
+		members = []database.Member{}
+	}
+
 	err = app.writeJSON(w, http.StatusOK, envelope{"members": members}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)

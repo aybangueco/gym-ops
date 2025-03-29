@@ -25,6 +25,10 @@ func (app *application) getMembershipsHandler(w http.ResponseWriter, r *http.Req
 		return
 	}
 
+	if memberships == nil {
+		memberships = []database.Membership{}
+	}
+
 	app.writeJSON(w, http.StatusOK, envelope{"memberships": memberships}, nil)
 }
 
