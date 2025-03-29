@@ -12,6 +12,8 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/w4keupvan/gym-ops/backend/internal/database"
+	"github.com/w4keupvan/gym-ops/backend/internal/env"
+	"github.com/w4keupvan/gym-ops/backend/internal/mailer"
 )
 
 type config struct {
@@ -23,10 +25,17 @@ type config struct {
 		username string
 		password string
 		host     string
-		port     string
+		port     int
 		database string
 	}
 	jwtTokenKey string
+	smtp        struct {
+		host     string
+		port     int
+		username string
+		password string
+		sender   string
+	}
 }
 
 type application struct {
@@ -34,21 +43,29 @@ type application struct {
 	db     *database.Queries
 	logger *slog.Logger
 	wg     sync.WaitGroup
+	mail   mailer.Mailer
 }
 
 func main() {
 	var cfg config
 
-	cfg.db.username = os.Getenv("DB_USERNAME")
-	cfg.db.password = os.Getenv("DB_PASSWORD")
-	cfg.db.host = os.Getenv("DB_HOST")
-	cfg.db.port = os.Getenv("DB_PORT")
-	cfg.db.database = os.Getenv("DB_DATABASE")
-	cfg.jwtTokenKey = os.Getenv("JWT_TOKEN_KEY")
+	cfg.db.username = env.GetString("DB_USERNAME", "postgres")
+	cfg.db.password = env.GetString("DB_PASSWORD", "postgres")
+	cfg.db.host = env.GetString("DB_HOST", "localhost")
+	cfg.db.port = env.GetInt("DB_PORT", 5432)
+	cfg.db.database = env.GetString("DB_DATABASE", "postgres")
+
+	cfg.jwtTokenKey = env.GetString("JWT_TOKEN_KEY", "token_secret")
+
+	cfg.smtp.host = env.GetString("SMTP_HOST", "secret")
+	cfg.smtp.port = env.GetInt("SMTP_PORT", 25)
+	cfg.smtp.username = env.GetString("SMTP_USERNAME", "secret")
+	cfg.smtp.password = env.GetString("SMTP_PASSWORD", "secret")
+	cfg.smtp.sender = env.GetString("SMTP_SENDER", "secret")
 
 	flag.StringVar(&cfg.baseURL, "base-url", "http://localhost:4000", "Base url of the server")
 	flag.StringVar(&cfg.env, "env", "development", "Server environment (production|development)")
-	flag.StringVar(&cfg.dsn, "database-dsn", fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable", cfg.db.username, cfg.db.password, cfg.db.host, cfg.db.port, cfg.db.database), "Database dsn of server")
+	flag.StringVar(&cfg.dsn, "database-dsn", fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable", cfg.db.username, cfg.db.password, cfg.db.host, cfg.db.port, cfg.db.database), "Database dsn of server")
 	flag.IntVar(&cfg.port, "port", 4000, "Server listening port")
 
 	flag.Parse()
@@ -69,6 +86,7 @@ func main() {
 		config: cfg,
 		logger: logger,
 		db:     database.New(dbpool),
+		mail:   mailer.New(cfg.smtp.host, cfg.smtp.port, cfg.smtp.username, cfg.smtp.password, cfg.smtp.sender),
 	}
 
 	err = app.serveHTTP()
