@@ -8,5 +8,5 @@ INSERT INTO otps (
     $1, $2, $3
 ) RETURNING *;
 
--- name: DeleteOtp :exec
-DELETE FROM otps WHERE code = $1;
+-- name: DeleteOtps :exec
+DELETE FROM otps WHERE user_id = $1;

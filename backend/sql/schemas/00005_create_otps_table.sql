@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS otps (
     code BIGINT NOT NULL,
     type otp_type NOT NULL,
     expires_at TIMESTAMP DEFAULT (current_timestamp + '10 minutes'),
-    user_id BIGINT REFERENCES users(id) ON DELETE CASCADE
+    user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE
 );
 
 CREATE INDEX idx_otp on otps(code);
@@ -15,7 +15,7 @@ CREATE INDEX idx_otp on otps(code);
 
 -- +goose Down
 -- +goose StatementBegin
-DROP INDEX idex_otp;
+DROP INDEX idx_otp;
 DROP TABLE IF EXISTS otps;
 DROP TYPE IF EXISTS otp_type;
 -- +goose StatementEnd
