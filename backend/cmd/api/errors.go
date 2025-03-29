@@ -58,6 +58,11 @@ func (app *application) requiredAuthenticatedResponse(w http.ResponseWriter, r *
 	app.errorResponse(w, r, http.StatusUnauthorized, message)
 }
 
+func (app *application) invalidAuthDetailsResponse(w http.ResponseWriter, r *http.Request) {
+	message := "invalid email or password"
+	app.errorResponse(w, r, http.StatusUnauthorized, message)
+}
+
 func (app *application) failedValidationResponse(w http.ResponseWriter, r *http.Request, v validator.Validator) {
 	err := app.writeJSON(w, http.StatusUnprocessableEntity, v, nil)
 	if err != nil {

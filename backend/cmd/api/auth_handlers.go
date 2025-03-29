@@ -9,6 +9,7 @@ import (
 	"github.com/golang-jwt/jwt"
 	"github.com/jackc/pgx/v5"
 	"github.com/w4keupvan/gym-ops/backend/internal/database"
+	"github.com/w4keupvan/gym-ops/backend/internal/hash"
 	"github.com/w4keupvan/gym-ops/backend/internal/validator"
 )
 
@@ -43,17 +44,24 @@ func (app *application) loginHandler(w http.ResponseWriter, r *http.Request) {
 	defer cancel()
 
 	user, err := app.db.GetUserByEmail(ctx, input.Email)
-	existingEmail := errors.Is(err, pgx.ErrNoRows)
-
-	if err != nil && !existingEmail {
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			app.invalidAuthDetailsResponse(w, r)
+			return
+		}
 		app.serverErrorResponse(w, r, err)
 		return
 	}
 
-	input.Validator.CheckField(!existingEmail, "email", "no account found with this email")
-
 	if input.Validator.HasErrors() {
 		app.failedValidationResponse(w, r, input.Validator)
+		return
+	}
+
+	isMatch := hash.IsMatch(input.Password, string(user.Password))
+
+	if !isMatch {
+		app.invalidAuthDetailsResponse(w, r)
 		return
 	}
 
@@ -118,13 +126,19 @@ func (app *application) registerHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	hashedPassowrd, err := hash.HashPassword(input.Password)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
 	ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	user, err := app.db.CreateUser(ctx, database.CreateUserParams{
 		Name:     input.Name,
 		Email:    input.Email,
-		Password: []byte(input.Password),
+		Password: []byte(hashedPassowrd),
 	})
 
 	if err != nil {
