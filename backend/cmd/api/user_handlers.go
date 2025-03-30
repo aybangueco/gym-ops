@@ -54,7 +54,7 @@ func (app *application) verifyEmailHandler(w http.ResponseWriter, r *http.Reques
 
 	timeNow := time.Now()
 
-	if otp.ExpiresAt.After(timeNow) {
+	if timeNow.After(*otp.ExpiresAt) {
 		input.Validator.AddFieldError("code", "otp code is expired")
 		app.failedValidationResponse(w, r, input.Validator)
 		return
