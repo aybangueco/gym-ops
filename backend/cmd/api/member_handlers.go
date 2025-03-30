@@ -125,7 +125,6 @@ func (app *application) createMemberHandler(w http.ResponseWriter, r *http.Reque
 		MembershipStart: &membershipStart,
 		MembershipEnd:   &membershipEnd,
 	})
-
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -229,7 +228,6 @@ func (app *application) updateMemberHandler(w http.ResponseWriter, r *http.Reque
 		MembershipStart: member.MembershipStart,
 		MembershipEnd:   member.MembershipEnd,
 	})
-
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

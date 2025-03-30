@@ -28,7 +28,6 @@ func (app *application) parseUserToken(cfg config, token string) (*userClaims, e
 	parsedToken, err := jwt.ParseWithClaims(token, &userClaims{}, func(t *jwt.Token) (interface{}, error) {
 		return []byte(secretKey), nil
 	})
-
 	if err != nil {
 		return nil, err
 	}

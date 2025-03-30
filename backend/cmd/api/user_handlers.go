@@ -93,7 +93,6 @@ func (app *application) verifyEmailHandler(w http.ResponseWriter, r *http.Reques
 		Password:  user.Password,
 		Activated: user.Activated,
 	})
-
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -141,7 +140,6 @@ func (app *application) resendEmailOtpHandler(w http.ResponseWriter, r *http.Req
 		Type:   database.OtpTypeEmailVerification,
 		UserID: authenticatedUser.ID,
 	})
-
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

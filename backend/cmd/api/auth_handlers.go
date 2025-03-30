@@ -18,7 +18,10 @@ func (app *application) currentAuthenticatedHandler(w http.ResponseWriter, r *ht
 
 	user.Password = []byte{}
 
-	app.writeJSON(w, http.StatusOK, envelope{"user": user}, nil)
+	err := app.writeJSON(w, http.StatusOK, envelope{"user": user}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
 }
 
 func (app *application) loginHandler(w http.ResponseWriter, r *http.Request) {
@@ -140,7 +143,6 @@ func (app *application) registerHandler(w http.ResponseWriter, r *http.Request) 
 		Email:    input.Email,
 		Password: []byte(hashedPassowrd),
 	})
-
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -156,7 +158,6 @@ func (app *application) registerHandler(w http.ResponseWriter, r *http.Request) 
 		Type:   database.OtpTypeEmailVerification,
 		UserID: user.ID,
 	})
-
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

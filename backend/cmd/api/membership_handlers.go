@@ -29,7 +29,10 @@ func (app *application) getMembershipsHandler(w http.ResponseWriter, r *http.Req
 		memberships = []database.Membership{}
 	}
 
-	app.writeJSON(w, http.StatusOK, envelope{"memberships": memberships}, nil)
+	err = app.writeJSON(w, http.StatusOK, envelope{"memberships": memberships}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
 }
 
 func (app *application) getMembershipByID(w http.ResponseWriter, r *http.Request) {
@@ -99,7 +102,6 @@ func (app *application) createMembershipHandler(w http.ResponseWriter, r *http.R
 		MembershipLength: &input.MembershipLength,
 		CreatedBy:        user.ID,
 	})
-
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

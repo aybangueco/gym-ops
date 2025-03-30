@@ -8,7 +8,10 @@ import (
 )
 
 func (app *application) healthCheck(w http.ResponseWriter, r *http.Request) {
-	app.writeJSON(w, http.StatusOK, envelope{"status": "OK"}, nil)
+	err := app.writeJSON(w, http.StatusOK, envelope{"status": "OK"}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
 }
 
 func (app *application) routes() http.Handler {
