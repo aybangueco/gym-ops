@@ -3,7 +3,7 @@
 	import { Input } from '$lib/components/ui/input';
 	import { defaults, superForm } from 'sveltekit-superforms';
 	import { zod } from 'sveltekit-superforms/adapters';
-	import { login, loginSchema, setToken, type LoginSchema } from '../';
+	import { login, loginSchema, setToken } from '../';
 	import { Button } from '$lib/components/ui/button';
 	import { goto, invalidate } from '$app/navigation';
 	import toast from 'svelte-french-toast';

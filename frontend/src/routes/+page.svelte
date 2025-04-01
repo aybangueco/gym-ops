@@ -9,7 +9,7 @@
 	<h1 class="text-3xl font-bold">Gym Ops</h1>
 	<nav>
 		<ul class="flex items-center justify-center gap-3">
-			<li class="hover:bg-secondary rounded-md border p-2 hover:cursor-pointer">
+			<li class="rounded-md border p-2 hover:cursor-pointer hover:bg-secondary">
 				<a href="/register">Get Started</a>
 			</li>
 			<li>
@@ -42,7 +42,7 @@
 			<!-- Feature 1 -->
 			<div class="rounded-lg border p-6 text-center shadow-sm transition-all hover:shadow-md">
 				<div class="mb-4 flex justify-center">
-					<div class="bg-primary/10 text-primary rounded-full p-3">
+					<div class="rounded-full bg-primary/10 p-3 text-primary">
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
 							class="h-8 w-8"
@@ -68,7 +68,7 @@
 			<!-- Feature 2 -->
 			<div class="rounded-lg border p-6 text-center shadow-sm transition-all hover:shadow-md">
 				<div class="mb-4 flex justify-center">
-					<div class="bg-primary/10 text-primary rounded-full p-3">
+					<div class="rounded-full bg-primary/10 p-3 text-primary">
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
 							class="h-8 w-8"
@@ -94,7 +94,7 @@
 			<!-- Feature 3 -->
 			<div class="rounded-lg border p-6 text-center shadow-sm transition-all hover:shadow-md">
 				<div class="mb-4 flex justify-center">
-					<div class="bg-primary/10 text-primary rounded-full p-3">
+					<div class="rounded-full bg-primary/10 p-3 text-primary">
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
 							class="h-8 w-8"
