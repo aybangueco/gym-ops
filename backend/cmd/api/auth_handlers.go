@@ -176,9 +176,23 @@ func (app *application) registerHandler(w http.ResponseWriter, r *http.Request) 
 		}
 	})
 
-	user.Password = []byte{}
+	claims := userClaims{
+		ID: user.ID,
+		StandardClaims: jwt.StandardClaims{
+			Issuer:    "gym-ops",
+			IssuedAt:  time.Now().Unix(),
+			ExpiresAt: time.Now().Add(time.Hour * 24).Unix(),
+		},
+	}
 
-	err = app.writeJSON(w, http.StatusCreated, user, nil)
+	token, err := app.generateUserToken(app.config, claims)
+	if err != nil {
+		app.logger.Error(err.Error())
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"token": token}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
