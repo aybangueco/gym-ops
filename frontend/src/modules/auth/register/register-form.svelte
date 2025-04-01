@@ -1,15 +1,55 @@
 <script lang="ts">
 	import * as Form from '$lib/components/ui/form';
 	import { Input } from '$lib/components/ui/input';
-	import { defaults, superForm } from 'sveltekit-superforms';
+	import { defaults, setError, superForm } from 'sveltekit-superforms';
 	import { zod } from 'sveltekit-superforms/adapters';
-	import { registerSchema } from '../';
+	import { register, registerSchema, setToken, type RegisterSchema } from '../';
 	import { Button } from '$lib/components/ui/button';
 	import { goto } from '$app/navigation';
+	import toast from 'svelte-french-toast';
+	import type { ApiErrorResponse } from '$lib/types';
+	import { createMutation } from '@tanstack/svelte-query';
+
+	const registerMutation = createMutation({
+		mutationKey: ['register'],
+		mutationFn: register,
+		onSuccess: (data) => {
+			toast.success('Registered successfully');
+			setToken(data.token);
+			goto('/dashboard');
+		},
+		onError: (error: ApiErrorResponse) => {
+			if (error.message) {
+				toast.error(error.message);
+			}
+		}
+	});
 
 	const form = superForm(defaults(zod(registerSchema)), {
 		SPA: true,
-		validators: zod(registerSchema)
+		validators: zod(registerSchema),
+		async onUpdate({ form }) {
+			if (form.valid) {
+				try {
+					return await $registerMutation.mutateAsync({
+						name: form.data.name,
+						email: form.data.email,
+						password: form.data.password
+					});
+				} catch (error) {
+					const apiError = error as ApiErrorResponse;
+
+					if (apiError.field_errors) {
+						form.errors = {
+							email: apiError.field_errors.email ? [`${apiError.field_errors.email}`] : undefined
+						};
+
+						setError(form, '');
+						return;
+					}
+				}
+			}
+		}
 	});
 
 	const { form: formData, enhance } = form;

@@ -3,13 +3,34 @@
 	import { Input } from '$lib/components/ui/input';
 	import { defaults, superForm } from 'sveltekit-superforms';
 	import { zod } from 'sveltekit-superforms/adapters';
-	import { loginSchema } from '../';
+	import { login, loginSchema, setToken, type LoginSchema } from '../';
 	import { Button } from '$lib/components/ui/button';
 	import { goto } from '$app/navigation';
+	import toast from 'svelte-french-toast';
+	import type { ApiErrorResponse } from '$lib/types';
+	import { createMutation } from '@tanstack/svelte-query';
+
+	const loginMutation = createMutation({
+		mutationKey: ['login'],
+		mutationFn: login,
+		onSuccess: (data) => {
+			toast.success('Logged in successfully');
+			setToken(data.token);
+			goto('dashboard');
+		},
+		onError: (error: ApiErrorResponse) => {
+			toast.error(error.message);
+		}
+	});
 
 	const form = superForm(defaults(zod(loginSchema)), {
 		SPA: true,
-		validators: zod(loginSchema)
+		validators: zod(loginSchema),
+		onUpdate({ form }) {
+			if (form.valid) {
+				$loginMutation.mutate(form.data);
+			}
+		}
 	});
 
 	const { form: formData, enhance } = form;
