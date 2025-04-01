@@ -28,7 +28,7 @@
 			all-in-one gym management solution.
 		</p>
 		<Button onclick={() => goto('/register')} class="rounded-md px-6 py-3 font-semibold"
-			>Start Free Trial</Button
+			>Join Now For Free</Button
 		>
 	</div>
 </section>
@@ -148,7 +148,7 @@
 		</p>
 		<div class="flex flex-col items-center justify-center gap-4 sm:flex-row">
 			<Button onclick={() => goto('/register')} class="rounded-md px-6 py-3 font-semibold"
-				>Start Free Trial</Button
+				>Join Now For Free</Button
 			>
 		</div>
 	</div>

@@ -16,6 +16,7 @@
 	"devDependencies": {
 		"@eslint/compat": "^1.2.5",
 		"@eslint/js": "^9.18.0",
+		"@lucide/svelte": "^0.485.0",
 		"@sveltejs/adapter-auto": "^4.0.0",
 		"@sveltejs/kit": "^2.16.0",
 		"@sveltejs/vite-plugin-svelte": "^5.0.0",
@@ -43,7 +44,6 @@
 		"zod": "^3.24.2"
 	},
 	"dependencies": {
-		"@lucide/svelte": "^0.485.0",
 		"@tanstack/svelte-query": "^5.71.1",
 		"axios": "^1.8.4",
 		"mode-watcher": "^0.5.1",
