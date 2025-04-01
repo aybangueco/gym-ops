@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"strings"
 	"sync"
 	"time"
 
@@ -17,11 +18,12 @@ import (
 )
 
 type config struct {
-	baseURL string
-	env     string
-	port    int
-	dsn     string
-	db      struct {
+	allowedOrigins []string
+	baseURL        string
+	env            string
+	port           int
+	dsn            string
+	db             struct {
 		username string
 		password string
 		host     string
@@ -67,6 +69,10 @@ func main() {
 	flag.StringVar(&cfg.env, "env", "development", "Server environment (production|development)")
 	flag.StringVar(&cfg.dsn, "database-dsn", fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable", cfg.db.username, cfg.db.password, cfg.db.host, cfg.db.port, cfg.db.database), "Database dsn of server")
 	flag.IntVar(&cfg.port, "port", 4000, "Server listening port")
+	flag.Func("allowed-origins", "Allowed origins (space seperated)", func(s string) error {
+		cfg.allowedOrigins = strings.Fields(s)
+		return nil
+	})
 
 	flag.Parse()
 
