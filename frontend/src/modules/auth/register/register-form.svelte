@@ -5,7 +5,7 @@
 	import { zod } from 'sveltekit-superforms/adapters';
 	import { register, registerSchema, setToken, type RegisterSchema } from '../';
 	import { Button } from '$lib/components/ui/button';
-	import { goto } from '$app/navigation';
+	import { goto, invalidate } from '$app/navigation';
 	import toast from 'svelte-french-toast';
 	import type { ApiErrorResponse } from '$lib/types';
 	import { createMutation } from '@tanstack/svelte-query';
@@ -16,7 +16,7 @@
 		onSuccess: (data) => {
 			toast.success('Registered successfully');
 			setToken(data.token);
-			goto('/dashboard');
+			invalidate('auth:me');
 		},
 		onError: (error: ApiErrorResponse) => {
 			if (error.message) {

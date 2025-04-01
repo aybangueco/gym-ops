@@ -27,3 +27,12 @@ export const loginSchema = z.object({
 });
 
 export type LoginSchema = z.infer<typeof loginSchema>;
+
+export const codeSchema = z.object({
+	code: z
+		.string()
+		.length(6, { message: 'Please enter a 6-digit OTP code' })
+		.regex(/^\d+$/, { message: 'OTP must be a numeric value' })
+});
+
+export type CodeSchema = z.infer<typeof codeSchema>;
