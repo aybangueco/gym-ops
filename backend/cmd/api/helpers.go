@@ -10,6 +10,7 @@ import (
 	"math"
 	"math/big"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 )
@@ -139,4 +140,29 @@ func (app *application) generateOTP(maxDigits uint32) int64 {
 	}
 
 	return bi.Int64()
+}
+
+func (app *application) readParamString(r url.Values, key, defaultValue string) string {
+	s := r.Get(key)
+
+	if s == "" {
+		return defaultValue
+	}
+
+	return s
+}
+
+func (app *application) readParamInt(r url.Values, key string, defaultValue int) int {
+	i := r.Get(key)
+
+	if i == "" {
+		return defaultValue
+	}
+
+	converted, err := strconv.Atoi(i)
+	if err != nil {
+		return defaultValue
+	}
+
+	return converted
 }

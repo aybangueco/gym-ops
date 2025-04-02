@@ -16,10 +16,20 @@ import (
 func (app *application) getMembershipsHandler(w http.ResponseWriter, r *http.Request) {
 	user := app.getContextAuthenticatedUser(r)
 
+	params := r.URL.Query()
+
+	limit := app.readParamInt(params, "limit", 10)
+	page := app.readParamInt(params, "page", 1)
+	offset := int32((page - 1) * limit)
+
 	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
 
-	memberships, err := app.db.GetMemberships(ctx, user.ID)
+	memberships, err := app.db.GetMemberships(ctx, database.GetMembershipsParams{
+		CreatedBy: user.ID,
+		Limit:     int32(limit),
+		Offset:    offset,
+	})
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

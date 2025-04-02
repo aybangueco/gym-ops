@@ -79,10 +79,18 @@ func (q *Queries) GetMembershipByID(ctx context.Context, arg GetMembershipByIDPa
 const getMemberships = `-- name: GetMemberships :many
 SELECT id, membership_name, membership_length, created_by, version FROM memberships
 WHERE created_by = $1
+ORDER BY id
+LIMIT $2 OFFSET $3
 `
 
-func (q *Queries) GetMemberships(ctx context.Context, createdBy int64) ([]Membership, error) {
-	rows, err := q.db.Query(ctx, getMemberships, createdBy)
+type GetMembershipsParams struct {
+	CreatedBy int64 `json:"created_by"`
+	Limit     int32 `json:"limit"`
+	Offset    int32 `json:"offset"`
+}
+
+func (q *Queries) GetMemberships(ctx context.Context, arg GetMembershipsParams) ([]Membership, error) {
+	rows, err := q.db.Query(ctx, getMemberships, arg.CreatedBy, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}

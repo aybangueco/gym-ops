@@ -16,10 +16,20 @@ import (
 func (app *application) getMembersHandler(w http.ResponseWriter, r *http.Request) {
 	user := app.getContextAuthenticatedUser(r)
 
+	params := r.URL.Query()
+
+	limit := app.readParamInt(params, "limit", 10)
+	page := app.readParamInt(params, "page", 1)
+	offset := (page - 1) * limit
+
 	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
 
-	members, err := app.db.GetMembers(ctx, user.ID)
+	members, err := app.db.GetMembers(ctx, database.GetMembersParams{
+		CreatedBy: user.ID,
+		Limit:     int32(limit),
+		Offset:    int32(offset),
+	})
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

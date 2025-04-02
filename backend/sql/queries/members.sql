@@ -1,6 +1,8 @@
 -- name: GetMembers :many
 SELECT * FROM members
-WHERE created_by = $1;
+WHERE created_by = $1
+ORDER BY id
+LIMIT $2 OFFSET $3;
 
 -- name: GetMemberByID :one
 SELECT * FROM members
