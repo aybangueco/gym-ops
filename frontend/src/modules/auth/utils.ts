@@ -1,3 +1,5 @@
+import { invalidate } from '$app/navigation';
+
 const TOKEN_KEY = 'token';
 
 export const getToken = () => {
@@ -14,4 +16,9 @@ export const removeToken = () => {
 
 export const clearLocalStorage = () => {
 	return localStorage.clear();
+};
+
+export const logOut = () => {
+	removeToken();
+	invalidate('auth:me');
 };
