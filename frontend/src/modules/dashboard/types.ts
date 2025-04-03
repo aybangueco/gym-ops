@@ -29,5 +29,5 @@ export type MemberResponse = {
 };
 
 export type MembersResponse = {
-	members: Array<MemberResponse>;
+	members: Array<Member>;
 };
