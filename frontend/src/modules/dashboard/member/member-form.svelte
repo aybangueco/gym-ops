@@ -4,21 +4,27 @@
 	import { Input } from '$lib/components/ui/input';
 	import { defaults, superForm } from 'sveltekit-superforms';
 	import { zod } from 'sveltekit-superforms/adapters';
-	import { addMember, memberSchema, type Membership } from '..';
-	import { createMutation } from '@tanstack/svelte-query';
+	import { addMember, getMemberships, memberSchema, type Membership } from '..';
+	import { createMutation, createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import toast from 'svelte-french-toast';
 
-	let { memberships }: { memberships: Array<Membership> } = $props();
+	const queryClient = useQueryClient();
 
 	const addMemberMutation = createMutation({
-		mutationKey: ['members'],
+		mutationKey: ['addMember'],
 		mutationFn: addMember,
 		onSuccess: () => {
 			toast.success('Member created successfully');
+			queryClient.invalidateQueries({ queryKey: ['members'] });
 		},
 		onError: (error) => {
 			toast.error(error.message);
 		}
+	});
+
+	const getMembershipsQuery = createQuery({
+		queryKey: ['memberships'],
+		queryFn: getMemberships
 	});
 
 	const form = superForm(defaults(zod(memberSchema)), {
@@ -65,14 +71,20 @@
 						<Select.Root type="single" bind:value={$formData.membership} name={props.name}>
 							<Select.Trigger {...props}>
 								{$formData.membership
-									? memberships.find((e) => e.id.toString() === $formData.membership.toString())
-											?.membership_name
+									? $getMembershipsQuery.data?.memberships.find(
+											(e) => e.id.toString() === $formData.membership.toString()
+										)?.membership_name
 									: 'Select membership'}
 							</Select.Trigger>
 							<Select.Content>
-								{#each memberships as membership}
-									<Select.Item value={`${membership.id}`} label={membership.membership_name} />
-								{/each}
+								{#if $getMembershipsQuery.isLoading}
+									<Select.Item value="" label="Loading" />
+								{/if}
+								{#if $getMembershipsQuery.isSuccess}
+									{#each $getMembershipsQuery.data.memberships as membership}
+										<Select.Item value={`${membership.id}`} label={membership.membership_name} />
+									{/each}
+								{/if}
 							</Select.Content>
 						</Select.Root>
 					{/snippet}

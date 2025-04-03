@@ -1,8 +1,6 @@
 <script lang="ts">
-	import { MemberForm } from '@modules/dashboard/member';
-	import type { PageProps } from './$types';
-
-	let { data }: PageProps = $props();
+	import { MemberForm, MemberTable } from '@modules/dashboard/member';
 </script>
 
-<MemberForm memberships={data.membershipsData?.memberships ?? []} />
+<MemberForm />
+<MemberTable />
