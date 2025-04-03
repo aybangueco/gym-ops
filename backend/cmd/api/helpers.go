@@ -142,7 +142,7 @@ func (app *application) generateOTP(maxDigits uint32) int64 {
 	return bi.Int64()
 }
 
-func (app *application) readParamString(r url.Values, key, defaultValue string) string {
+/* func (app *application) readParamString(r url.Values, key, defaultValue string) string {
 	s := r.Get(key)
 
 	if s == "" {
@@ -150,7 +150,7 @@ func (app *application) readParamString(r url.Values, key, defaultValue string) 
 	}
 
 	return s
-}
+} */
 
 func (app *application) readParamInt(r url.Values, key string, defaultValue int) int {
 	i := r.Get(key)

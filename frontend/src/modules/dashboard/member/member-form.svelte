@@ -4,7 +4,7 @@
 	import { Input } from '$lib/components/ui/input';
 	import { defaults, superForm } from 'sveltekit-superforms';
 	import { zod } from 'sveltekit-superforms/adapters';
-	import { addMember, getMemberships, memberSchema, type Membership } from '..';
+	import { addMember, getMemberships, memberSchema } from '..';
 	import { createMutation, createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import toast from 'svelte-french-toast';
 
