@@ -5,6 +5,13 @@ export async function addMembership(data: MembershipSchema) {
 	return await api({ method: 'POST', url: '/memberships', data });
 }
 
+export async function deleteMembership(id: number) {
+	return await api({
+		method: 'DELETE',
+		url: `/memberships/${id}`
+	});
+}
+
 export async function addMember(data: MemberSchema) {
 	return await api({
 		method: 'POST',
@@ -14,5 +21,12 @@ export async function addMember(data: MemberSchema) {
 			member_contact: data.member_contact.toString(),
 			membership: Number(data.membership)
 		}
+	});
+}
+
+export async function deleteMember(id: number) {
+	return await api({
+		method: 'DELETE',
+		url: `/members/${id}`
 	});
 }
