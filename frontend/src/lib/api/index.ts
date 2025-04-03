@@ -6,7 +6,7 @@ type ApiConfig = {
 	url: string;
 	method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 	data?: unknown;
-	params?: string;
+	params?: unknown;
 };
 
 const axiosInstance: AxiosInstance = axios.create({
