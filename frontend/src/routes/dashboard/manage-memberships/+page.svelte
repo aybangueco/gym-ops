@@ -1,5 +1,6 @@
 <script>
-	import { MembershipForm } from '@modules/dashboard/membership';
+	import { MembershipForm, MembershipTable } from '@modules/dashboard/membership';
 </script>
 
 <MembershipForm />
+<MembershipTable />

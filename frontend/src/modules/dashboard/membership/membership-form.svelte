@@ -4,14 +4,17 @@
 	import { defaults, superForm } from 'sveltekit-superforms';
 	import { zod } from 'sveltekit-superforms/adapters';
 	import { membershipSchema, addMembership } from '..';
-	import { createMutation } from '@tanstack/svelte-query';
+	import { createMutation, useQueryClient } from '@tanstack/svelte-query';
 	import toast from 'svelte-french-toast';
+
+	const queryClient = useQueryClient();
 
 	const addMembershipMutation = createMutation({
 		mutationKey: ['memberships'],
 		mutationFn: addMembership,
 		onSuccess: () => {
 			toast.success('Membership created successfully');
+			queryClient.invalidateQueries({ queryKey: ['memberships'] });
 		},
 		onError: (error) => {
 			if (error.message) {
