@@ -1,7 +1,6 @@
 import { goto } from '$app/navigation';
 import toast from 'svelte-french-toast';
 import type { LayoutLoad } from './$types';
-import { getMembers, getMemberships } from '@modules/dashboard';
 
 export const load: LayoutLoad = async ({ parent }) => {
 	const { user } = await parent();
@@ -16,9 +15,4 @@ export const load: LayoutLoad = async ({ parent }) => {
 		goto('/u/email-confirmation');
 		return;
 	}
-
-	const membersData = await getMembers();
-	const membershipsData = await getMemberships();
-
-	return { membersData, membershipsData };
 };
