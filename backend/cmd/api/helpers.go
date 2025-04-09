@@ -1,18 +1,17 @@
 package main
 
 import (
-	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
-	"math"
-	"math/big"
+	"math/rand"
 	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type envelope map[string]any
@@ -131,15 +130,10 @@ func (app *application) background(fn func()) {
 }
 
 func (app *application) generateOTP(maxDigits uint32) int64 {
-	bi, err := rand.Int(
-		rand.Reader,
-		big.NewInt(int64(math.Pow(10, float64(maxDigits)))),
-	)
-	if err != nil {
-		panic(err)
-	}
+	source := rand.NewSource(time.Now().Unix())
+	rng := rand.New(source)
 
-	return bi.Int64()
+	return int64(rng.Intn(999999) + 100000)
 }
 
 /* func (app *application) readParamString(r url.Values, key, defaultValue string) string {
