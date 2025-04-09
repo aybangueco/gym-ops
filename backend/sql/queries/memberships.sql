@@ -4,6 +4,10 @@ WHERE created_by = $1
 ORDER BY id
 LIMIT $2 OFFSET $3;
 
+-- name: CountMemberships :one
+SELECT COUNT(*) as total_memberships
+FROM memberships;
+
 -- name: GetMembershipByID :one
 SELECT * FROM memberships
 WHERE id = $1 AND created_by = $2;

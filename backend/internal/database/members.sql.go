@@ -12,6 +12,18 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 )
 
+const countMembers = `-- name: CountMembers :one
+SELECT COUNT(*) as total_members
+FROM members
+`
+
+func (q *Queries) CountMembers(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, countMembers)
+	var total_members int64
+	err := row.Scan(&total_members)
+	return total_members, err
+}
+
 const createMember = `-- name: CreateMember :one
 INSERT INTO members (
     member_name, member_contact, membership, created_by, membership_start, membership_end

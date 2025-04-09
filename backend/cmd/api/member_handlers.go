@@ -39,7 +39,21 @@ func (app *application) getMembersHandler(w http.ResponseWriter, r *http.Request
 		members = []database.Member{}
 	}
 
-	err = app.writeJSON(w, http.StatusOK, envelope{"members": members}, nil)
+	count, err := app.db.CountMembers(r.Context())
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = app.writeJSON(w, http.StatusOK, envelope{
+		"metadata": map[string]any{
+			"count":       count,
+			"page":        page,
+			"per_page":    limit,
+			"total_pages": count / int64(page),
+		},
+		"members": members,
+	}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
