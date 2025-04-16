@@ -1,20 +1,27 @@
 <script lang="ts">
 	import * as Table from '$lib/components/ui/table';
+	import * as Pagination from '$lib/components/ui/pagination';
 	import { Eye, Trash } from '@lucide/svelte';
 	import { deleteMember, getMembers, getMemberships } from '..';
 	import { createMutation, createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import toast from 'svelte-french-toast';
 
+	let page = $state(1);
+
 	const queryClient = useQueryClient();
 
 	const getMembersQuery = createQuery({
-		queryKey: ['members'],
-		queryFn: getMembers
+		queryKey: ['members', page],
+		queryFn: async () => {
+			return await getMembers({ page });
+		}
 	});
 
 	const getMembershipsQuery = createQuery({
 		queryKey: ['memberships'],
-		queryFn: getMemberships
+		queryFn: async () => {
+			return await getMemberships({page: 1, limit: 99999})
+		}
 	});
 
 	const deleteMemberMutation = createMutation({
@@ -28,6 +35,11 @@
 			toast.error(error.message);
 		}
 	});
+
+	const handlePageChange = (newPage: number) => {
+		page = newPage;
+		queryClient.invalidateQueries({ queryKey: ['members'] });
+	};
 </script>
 
 <div class="mt-10">
@@ -84,4 +96,35 @@
 			{/if}
 		</Table.Body>
 	</Table.Root>
+	<Pagination.Root
+		class="p-3"
+		count={$getMembersQuery.data?.metadata.count ?? 0}
+		perPage={$getMembersQuery.data?.metadata.per_page}
+		{page}
+		onPageChange={handlePageChange}
+	>
+		{#snippet children({ pages, currentPage })}
+			<Pagination.Content>
+				<Pagination.Item>
+					<Pagination.PrevButton />
+				</Pagination.Item>
+				{#each pages as page (page.key)}
+					{#if page.type === 'ellipsis'}
+						<Pagination.Item>
+							<Pagination.Ellipsis />
+						</Pagination.Item>
+					{:else}
+						<Pagination.Item>
+							<Pagination.Link {page} isActive={currentPage === page.value}>
+								{page.value}
+							</Pagination.Link>
+						</Pagination.Item>
+					{/if}
+				{/each}
+				<Pagination.Item>
+					<Pagination.NextButton />
+				</Pagination.Item>
+			</Pagination.Content>
+		{/snippet}
+	</Pagination.Root>
 </div>

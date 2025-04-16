@@ -1,3 +1,10 @@
+export type Metadata = {
+	count: number;
+	page: number;
+	per_page: number;
+	total_pages: number;
+};
+
 export type Membership = {
 	id: number;
 	membership_name: string;
@@ -11,6 +18,7 @@ export type MembershipResponse = {
 };
 
 export type MembershipsResponse = {
+	metadata: Metadata;
 	memberships: Array<Membership>;
 };
 
@@ -29,5 +37,6 @@ export type MemberResponse = {
 };
 
 export type MembersResponse = {
+	metadata: Metadata;
 	members: Array<Member>;
 };

@@ -1,16 +1,21 @@
 <script lang="ts">
 	import * as Table from '$lib/components/ui/table';
+	import * as Pagination from '$lib/components/ui/pagination';
 	import { createMutation, createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import { getMemberships } from '../queries';
 	import { deleteMembership } from '../mutations';
 	import toast from 'svelte-french-toast';
 	import { Eye, Trash } from '@lucide/svelte';
 
+	let page = $state(1);
+
 	const queryClient = useQueryClient();
 
 	const getMembershipsQuery = createQuery({
-		queryKey: ['memberships'],
-		queryFn: getMemberships
+		queryKey: ['memberships', page],
+		queryFn: async () => {
+			return await getMemberships({ page });
+		}
 	});
 
 	const deleteMembershipMutation = createMutation({
@@ -21,6 +26,11 @@
 			queryClient.invalidateQueries({ queryKey: ['memberships'] });
 		}
 	});
+
+	const handlePageChange = (newPage: number) => {
+		page = newPage;
+		queryClient.invalidateQueries({ queryKey: ['members'] });
+	};
 </script>
 
 <div class="mt-10">
@@ -66,4 +76,35 @@
 			{/if}
 		</Table.Body>
 	</Table.Root>
+	<Pagination.Root
+		class="p-3"
+		count={$getMembershipsQuery.data?.metadata.count ?? 0}
+		perPage={$getMembershipsQuery.data?.metadata.per_page}
+		{page}
+		onPageChange={handlePageChange}
+	>
+		{#snippet children({ pages, currentPage })}
+			<Pagination.Content>
+				<Pagination.Item>
+					<Pagination.PrevButton />
+				</Pagination.Item>
+				{#each pages as page (page.key)}
+					{#if page.type === 'ellipsis'}
+						<Pagination.Item>
+							<Pagination.Ellipsis />
+						</Pagination.Item>
+					{:else}
+						<Pagination.Item>
+							<Pagination.Link {page} isActive={currentPage === page.value}>
+								{page.value}
+							</Pagination.Link>
+						</Pagination.Item>
+					{/if}
+				{/each}
+				<Pagination.Item>
+					<Pagination.NextButton />
+				</Pagination.Item>
+			</Pagination.Content>
+		{/snippet}
+	</Pagination.Root>
 </div>
