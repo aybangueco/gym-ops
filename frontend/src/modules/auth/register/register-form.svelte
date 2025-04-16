@@ -99,7 +99,9 @@
 		</Form.Field>
 	</div>
 	<div class="mt-10">
-		<Form.Button type="submit" class="w-full">Register</Form.Button>
+		<Form.Button disabled={$registerMutation.isPending} type="submit" class="w-full"
+			>{$registerMutation.isPending ? 'Submitting...' : 'Register'}</Form.Button
+		>
 		<Button variant="link" onclick={() => goto('/login')} type="button" class="mt-3 w-full"
 			>Already Have Account?</Button
 		>
