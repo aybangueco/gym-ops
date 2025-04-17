@@ -1,0 +1,1 @@
+This project has been paused for now. Might return in the future, but working on something that aligns more with what I'm excited about today. I'm kinda burned out and i am no longer excited developing this.
