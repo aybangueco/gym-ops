@@ -20,7 +20,7 @@
 	const getMembershipsQuery = createQuery({
 		queryKey: ['memberships'],
 		queryFn: async () => {
-			return await getMemberships({page: 1, limit: 99999})
+			return await getMemberships({ page: 1, limit: 99999 });
 		}
 	});
 
