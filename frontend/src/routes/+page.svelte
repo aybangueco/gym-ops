@@ -9,8 +9,8 @@
 	<h1 class="text-3xl font-bold">Gym Ops</h1>
 	<nav>
 		<ul class="flex items-center justify-center gap-3">
-			<li class="rounded-md border p-2 hover:cursor-pointer hover:bg-secondary">
-				<a href="/register">Get Started</a>
+			<li>
+				<Button variant="default" onclick={() => goto('/register')}>Get Started</Button>
 			</li>
 			<li>
 				<ThemeToggle />

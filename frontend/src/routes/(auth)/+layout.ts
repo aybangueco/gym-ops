@@ -8,8 +8,11 @@ export const load: LayoutLoad = async ({ parent }) => {
 		return;
 	}
 
-	if (user) {
+	if (user && user.activated) {
 		goto('/dashboard');
+		return;
+	} else {
+		goto('/u/email-confirmation');
 		return;
 	}
 };
