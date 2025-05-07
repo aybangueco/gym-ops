@@ -24,7 +24,9 @@
 
 	const getMembershipsQuery = createQuery({
 		queryKey: ['memberships'],
-		queryFn: getMemberships
+		queryFn: async () => {
+			return await getMemberships({ page: 1, limit: 99999 });
+		}
 	});
 
 	const form = superForm(defaults(zod(memberSchema)), {

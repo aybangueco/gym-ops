@@ -59,6 +59,15 @@
 			</Form.Control>
 			<Form.FieldErrors />
 		</Form.Field>
+		<Form.Field {form} name="cost">
+			<Form.Control>
+				{#snippet children({ props })}
+					<Form.Label>Cost</Form.Label>
+					<Input type="number" {...props} bind:value={$formData.cost} />
+				{/snippet}
+			</Form.Control>
+			<Form.FieldErrors />
+		</Form.Field>
 	</div>
 	<div class="mt-5">
 		<Form.Button type="submit" class="w-full">Add Membership</Form.Button>

@@ -41,6 +41,7 @@
 				<Table.Head>ID</Table.Head>
 				<Table.Head>Membership Name</Table.Head>
 				<Table.Head>Membership Length</Table.Head>
+				<Table.Head>Cost</Table.Head>
 				<Table.Head>Actions</Table.Head>
 			</Table.Row>
 		</Table.Header>
@@ -57,6 +58,7 @@
 						<Table.Cell>{membership.id}</Table.Cell>
 						<Table.Cell>{membership.membership_name}</Table.Cell>
 						<Table.Cell>{membership.membership_length}</Table.Cell>
+						<Table.Cell>{membership.cost}</Table.Cell>
 						<Table.Cell class="flex gap-3">
 							<Eye class="cursor-pointer hover:text-muted-foreground" />
 							<Trash
