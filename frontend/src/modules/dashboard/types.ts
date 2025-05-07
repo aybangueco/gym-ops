@@ -1,3 +1,5 @@
+import type { MemberSchema, MembershipSchema } from './schemas';
+
 export type Metadata = {
 	count: number;
 	page: number;
@@ -5,13 +7,11 @@ export type Metadata = {
 	total_pages: number;
 };
 
-export type Membership = {
+export interface Membership extends MembershipSchema {
 	id: number;
-	membership_name: string;
-	membership_length: number;
 	created_by: number;
 	version: number;
-};
+}
 
 export type MembershipResponse = {
 	membership: Membership;
@@ -22,15 +22,12 @@ export type MembershipsResponse = {
 	memberships: Array<Membership>;
 };
 
-export type Member = {
+export interface Member extends MemberSchema {
 	id: number;
-	member_name: string;
-	member_contact: string;
-	membership: number;
 	created_by: number;
 	membership_start: Date;
 	membership_end: Date;
-};
+}
 
 export type MemberResponse = {
 	member: Member;
