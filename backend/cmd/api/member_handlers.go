@@ -181,7 +181,7 @@ func (app *application) updateMemberHandler(w http.ResponseWriter, r *http.Reque
 
 	memberID := chi.URLParam(r, "id")
 
-	i, err := app.convertStringToInt(memberID)
+	id, err := app.convertStringToInt(memberID)
 	if err != nil {
 		if errors.Is(err, strconv.ErrSyntax) {
 			app.invalidParameterIDResponse(w, r)
@@ -197,7 +197,7 @@ func (app *application) updateMemberHandler(w http.ResponseWriter, r *http.Reque
 	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
 
-	member, err := app.db.GetMemberByID(ctx, database.GetMemberByIDParams{ID: i, CreatedBy: user.ID})
+	member, err := app.db.GetMemberByID(ctx, database.GetMemberByIDParams{ID: id, CreatedBy: user.ID})
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			input.Validator.AddError("existing member not found")
@@ -245,7 +245,9 @@ func (app *application) updateMemberHandler(w http.ResponseWriter, r *http.Reque
 	defer cancel()
 
 	updatedMember, err := app.db.UpdateMember(ctx, database.UpdateMemberParams{
-		ID:              i,
+		ID:              id,
+		CreatedBy:       member.CreatedBy,
+		Version:         member.Version,
 		MemberName:      member.MemberName,
 		MemberContact:   member.MemberContact,
 		Membership:      member.Membership,
@@ -266,7 +268,7 @@ func (app *application) updateMemberHandler(w http.ResponseWriter, r *http.Reque
 func (app *application) deleteMemberHandler(w http.ResponseWriter, r *http.Request) {
 	memberID := chi.URLParam(r, "id")
 
-	i, err := app.convertStringToInt(memberID)
+	id, err := app.convertStringToInt(memberID)
 	if err != nil {
 		app.badRequestResponse(w, r, err)
 		return
@@ -277,7 +279,7 @@ func (app *application) deleteMemberHandler(w http.ResponseWriter, r *http.Reque
 	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
 
-	result, err := app.db.DeleteMember(ctx, database.DeleteMemberParams{ID: i, CreatedBy: user.ID})
+	result, err := app.db.DeleteMember(ctx, database.DeleteMemberParams{ID: id, CreatedBy: user.ID})
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

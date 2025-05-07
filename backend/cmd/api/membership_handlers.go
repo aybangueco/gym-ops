@@ -98,7 +98,8 @@ func (app *application) getMembershipByID(w http.ResponseWriter, r *http.Request
 func (app *application) createMembershipHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		MembershipName   string              `json:"membership_name"`
-		MembershipLength int32               `json:"membership_length"`
+		MembershipLength *int32              `json:"membership_length"`
+		Cost             *int64              `json:"cost"`
 		Validator        validator.Validator `json:"-"`
 	}
 
@@ -108,8 +109,14 @@ func (app *application) createMembershipHandler(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	input.Validator.CheckField(input.MembershipName != "", "membership_name", "membership name field is required")
-	input.Validator.CheckField(input.MembershipLength >= 0, "membership_length", "membership length field is required")
+	input.Validator.CheckField(input.MembershipName != "", "membership_name", "Membership name field is required")
+	input.Validator.CheckField(input.MembershipLength != nil, "membership_length", "Membership length field is required")
+	input.Validator.CheckField(input.Cost != nil, "cost", "Cost field is required")
+
+	if input.MembershipLength != nil && input.Cost != nil {
+		input.Validator.CheckField(*input.MembershipLength != 0, "membership_length", "Membership length must be greater than zero")
+		input.Validator.CheckField(*input.Cost != 0, "cost", "Cost must be greater than zero")
+	}
 
 	if input.Validator.HasErrors() {
 		app.failedValidationResponse(w, r, input.Validator)
@@ -123,7 +130,8 @@ func (app *application) createMembershipHandler(w http.ResponseWriter, r *http.R
 
 	membership, err := app.db.CreateMembership(ctx, database.CreateMembershipParams{
 		MembershipName:   input.MembershipName,
-		MembershipLength: &input.MembershipLength,
+		MembershipLength: input.MembershipLength,
+		Cost:             *input.Cost,
 		CreatedBy:        user.ID,
 	})
 	if err != nil {
@@ -141,6 +149,7 @@ func (app *application) updateMembershipHandler(w http.ResponseWriter, r *http.R
 	var input struct {
 		MembershipName   *string             `json:"membership_name"`
 		MembershipLength *int32              `json:"membership_length"`
+		Cost             *int64              `json:"cost"`
 		Validator        validator.Validator `json:"-"`
 	}
 
@@ -191,9 +200,11 @@ func (app *application) updateMembershipHandler(w http.ResponseWriter, r *http.R
 
 	v, err := app.db.UpdateMembership(ctx, database.UpdateMembershipParams{
 		ID:               membership.ID,
-		MembershipName:   membership.MembershipName,
-		MembershipLength: membership.MembershipLength,
+		CreatedBy:        membership.CreatedBy,
 		Version:          membership.Version,
+		MembershipName:   *input.MembershipName,
+		MembershipLength: input.MembershipLength,
+		Cost:             *input.Cost,
 	})
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
