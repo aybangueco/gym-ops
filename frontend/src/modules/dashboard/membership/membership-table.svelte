@@ -12,7 +12,7 @@
 	const queryClient = useQueryClient();
 
 	const getMembershipsQuery = createQuery({
-		queryKey: ['memberships', page],
+		queryKey: ['memberships', () => page],
 		queryFn: async () => {
 			return await getMemberships({ page });
 		}
@@ -29,7 +29,7 @@
 
 	const handlePageChange = (newPage: number) => {
 		page = newPage;
-		queryClient.invalidateQueries({ queryKey: ['members'] });
+		queryClient.invalidateQueries({ queryKey: ['memberships'] });
 	};
 </script>
 

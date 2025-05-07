@@ -11,7 +11,7 @@
 	const queryClient = useQueryClient();
 
 	const getMembersQuery = createQuery({
-		queryKey: ['members', page],
+		queryKey: ['members', () => page],
 		queryFn: async () => {
 			return await getMembers({ page });
 		}
