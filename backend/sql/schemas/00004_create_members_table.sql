@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS members (
     created_by BIGINT NOT NULL,
     membership_start TIMESTAMP,
     membership_end TIMESTAMP,
+    version INT NOT NULL DEFAULT 1,
     FOREIGN KEY (membership) REFERENCES memberships(id) ON DELETE CASCADE,
     FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE CASCADE
 );
