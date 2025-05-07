@@ -71,8 +71,9 @@
 						<Table.Cell>{member.member_contact}</Table.Cell>
 						{#if $getMembershipsQuery.isSuccess}
 							<Table.Cell
-								>{$getMembershipsQuery.data?.memberships.find((e) => e.id === member.membership)
-									?.membership_name}</Table.Cell
+								>{$getMembershipsQuery.data?.memberships.find(
+									(e) => e.id === Number(member.membership)
+								)?.membership_name}</Table.Cell
 							>
 						{/if}
 						<Table.Cell>{new Date(member.membership_start).toISOString().split('T')[0]}</Table.Cell>
