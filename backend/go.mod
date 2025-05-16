@@ -1,4 +1,4 @@
-module github.com/w4keupvan/gym-ops/backend
+module github.com/aybangueco/gym-ops/backend
 
 go 1.24.1
 

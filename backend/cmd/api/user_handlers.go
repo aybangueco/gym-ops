@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/aybangueco/gym-ops/backend/internal/database"
+	"github.com/aybangueco/gym-ops/backend/internal/validator"
 	"github.com/jackc/pgx/v5"
-	"github.com/w4keupvan/gym-ops/backend/internal/database"
-	"github.com/w4keupvan/gym-ops/backend/internal/validator"
 )
 
 func (app *application) verifyEmailHandler(w http.ResponseWriter, r *http.Request) {

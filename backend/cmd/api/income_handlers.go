@@ -3,7 +3,7 @@ package main
 import (
 	"net/http"
 
-	"github.com/w4keupvan/gym-ops/backend/internal/database"
+	"github.com/aybangueco/gym-ops/backend/internal/database"
 )
 
 func (app *application) getMonthIncomesHandler(w http.ResponseWriter, r *http.Request) {

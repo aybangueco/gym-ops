@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/w4keupvan/gym-ops/backend/internal/database"
+	"github.com/aybangueco/gym-ops/backend/internal/database"
 )
 
 type contextKey string

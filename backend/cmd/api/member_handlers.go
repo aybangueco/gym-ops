@@ -7,10 +7,10 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/aybangueco/gym-ops/backend/internal/database"
+	"github.com/aybangueco/gym-ops/backend/internal/validator"
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5"
-	"github.com/w4keupvan/gym-ops/backend/internal/database"
-	"github.com/w4keupvan/gym-ops/backend/internal/validator"
 )
 
 func (app *application) getMembersHandler(w http.ResponseWriter, r *http.Request) {

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/w4keupvan/gym-ops/backend/internal/validator"
+	"github.com/aybangueco/gym-ops/backend/internal/validator"
 )
 
 func (app *application) logError(r *http.Request, err error) {

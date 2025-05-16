@@ -10,11 +10,11 @@ import (
 	"sync"
 	"time"
 
+	"github.com/aybangueco/gym-ops/backend/internal/database"
+	"github.com/aybangueco/gym-ops/backend/internal/env"
+	"github.com/aybangueco/gym-ops/backend/internal/mailer"
 	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/joho/godotenv/autoload"
-	"github.com/w4keupvan/gym-ops/backend/internal/database"
-	"github.com/w4keupvan/gym-ops/backend/internal/env"
-	"github.com/w4keupvan/gym-ops/backend/internal/mailer"
 )
 
 type config struct {

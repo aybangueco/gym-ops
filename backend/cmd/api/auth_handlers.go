@@ -6,11 +6,11 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/aybangueco/gym-ops/backend/internal/database"
+	"github.com/aybangueco/gym-ops/backend/internal/hash"
+	"github.com/aybangueco/gym-ops/backend/internal/validator"
 	"github.com/golang-jwt/jwt"
 	"github.com/jackc/pgx/v5"
-	"github.com/w4keupvan/gym-ops/backend/internal/database"
-	"github.com/w4keupvan/gym-ops/backend/internal/hash"
-	"github.com/w4keupvan/gym-ops/backend/internal/validator"
 )
 
 func (app *application) currentAuthenticatedHandler(w http.ResponseWriter, r *http.Request) {
