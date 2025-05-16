@@ -55,5 +55,8 @@ func (app *application) routes() http.Handler {
 	r.Put("/api/members/{id}", app.requireActivated(app.updateMemberHandler))
 	r.Delete("/api/members/{id}", app.requireActivated(app.deleteMemberHandler))
 
+	r.Get("/api/month-incomes", app.requireActivated(app.getMonthIncomesHandler))
+	r.Get("/api/monthly-incomes", app.requireActivated(app.getMonthlyIncomesHandler))
+
 	return r
 }

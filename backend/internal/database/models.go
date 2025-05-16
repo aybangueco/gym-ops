@@ -52,6 +52,15 @@ func (ns NullOtpType) Value() (driver.Value, error) {
 	return string(ns.OtpType), nil
 }
 
+type Income struct {
+	ID           int64      `json:"id"`
+	MemberID     int64      `json:"member_id"`
+	MembershipID int64      `json:"membership_id"`
+	Amount       int64      `json:"amount"`
+	RecordedAt   *time.Time `json:"recorded_at"`
+	CreatedBy    int64      `json:"created_by"`
+}
+
 type Member struct {
 	ID              int64      `json:"id"`
 	MemberName      string     `json:"member_name"`
