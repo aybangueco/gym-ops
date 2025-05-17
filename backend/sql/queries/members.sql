@@ -14,9 +14,9 @@ WHERE id = $1 AND created_by = $2;
 
 -- name: CreateMember :one
 INSERT INTO members (
-    member_name, member_contact, membership, created_by, membership_start, membership_end
+    member_name, member_contact, membership, created_by, membership_status, membership_start, membership_end
 ) VALUES (
-    $1, $2, $3, $4, $5, $6
+    $1, $2, $3, $4, $5, $6, $7
 ) RETURNING *;
 
 -- name: UpdateMember :one

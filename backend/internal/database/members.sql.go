@@ -26,19 +26,20 @@ func (q *Queries) CountMembers(ctx context.Context) (int64, error) {
 
 const createMember = `-- name: CreateMember :one
 INSERT INTO members (
-    member_name, member_contact, membership, created_by, membership_start, membership_end
+    member_name, member_contact, membership, created_by, membership_status, membership_start, membership_end
 ) VALUES (
-    $1, $2, $3, $4, $5, $6
-) RETURNING id, member_name, member_contact, membership, created_by, membership_start, membership_end, version
+    $1, $2, $3, $4, $5, $6, $7
+) RETURNING id, member_name, member_contact, membership, created_by, membership_status, membership_start, membership_end, version
 `
 
 type CreateMemberParams struct {
-	MemberName      string     `json:"member_name"`
-	MemberContact   string     `json:"member_contact"`
-	Membership      int64      `json:"membership"`
-	CreatedBy       int64      `json:"created_by"`
-	MembershipStart *time.Time `json:"membership_start"`
-	MembershipEnd   *time.Time `json:"membership_end"`
+	MemberName       string     `json:"member_name"`
+	MemberContact    string     `json:"member_contact"`
+	Membership       *int64     `json:"membership"`
+	CreatedBy        int64      `json:"created_by"`
+	MembershipStatus Status     `json:"membership_status"`
+	MembershipStart  *time.Time `json:"membership_start"`
+	MembershipEnd    *time.Time `json:"membership_end"`
 }
 
 func (q *Queries) CreateMember(ctx context.Context, arg CreateMemberParams) (Member, error) {
@@ -47,6 +48,7 @@ func (q *Queries) CreateMember(ctx context.Context, arg CreateMemberParams) (Mem
 		arg.MemberContact,
 		arg.Membership,
 		arg.CreatedBy,
+		arg.MembershipStatus,
 		arg.MembershipStart,
 		arg.MembershipEnd,
 	)
@@ -57,6 +59,7 @@ func (q *Queries) CreateMember(ctx context.Context, arg CreateMemberParams) (Mem
 		&i.MemberContact,
 		&i.Membership,
 		&i.CreatedBy,
+		&i.MembershipStatus,
 		&i.MembershipStart,
 		&i.MembershipEnd,
 		&i.Version,
@@ -79,7 +82,7 @@ func (q *Queries) DeleteMember(ctx context.Context, arg DeleteMemberParams) (pgc
 }
 
 const getMemberByID = `-- name: GetMemberByID :one
-SELECT id, member_name, member_contact, membership, created_by, membership_start, membership_end, version FROM members
+SELECT id, member_name, member_contact, membership, created_by, membership_status, membership_start, membership_end, version FROM members
 WHERE id = $1 AND created_by = $2
 `
 
@@ -97,6 +100,7 @@ func (q *Queries) GetMemberByID(ctx context.Context, arg GetMemberByIDParams) (M
 		&i.MemberContact,
 		&i.Membership,
 		&i.CreatedBy,
+		&i.MembershipStatus,
 		&i.MembershipStart,
 		&i.MembershipEnd,
 		&i.Version,
@@ -105,7 +109,7 @@ func (q *Queries) GetMemberByID(ctx context.Context, arg GetMemberByIDParams) (M
 }
 
 const getMembers = `-- name: GetMembers :many
-SELECT id, member_name, member_contact, membership, created_by, membership_start, membership_end, version FROM members
+SELECT id, member_name, member_contact, membership, created_by, membership_status, membership_start, membership_end, version FROM members
 WHERE created_by = $1
 ORDER BY id
 LIMIT $2 OFFSET $3
@@ -132,6 +136,7 @@ func (q *Queries) GetMembers(ctx context.Context, arg GetMembersParams) ([]Membe
 			&i.MemberContact,
 			&i.Membership,
 			&i.CreatedBy,
+			&i.MembershipStatus,
 			&i.MembershipStart,
 			&i.MembershipEnd,
 			&i.Version,
@@ -164,7 +169,7 @@ type UpdateMemberParams struct {
 	Version         int32      `json:"version"`
 	MemberName      string     `json:"member_name"`
 	MemberContact   string     `json:"member_contact"`
-	Membership      int64      `json:"membership"`
+	Membership      *int64     `json:"membership"`
 	MembershipStart *time.Time `json:"membership_start"`
 	MembershipEnd   *time.Time `json:"membership_end"`
 }

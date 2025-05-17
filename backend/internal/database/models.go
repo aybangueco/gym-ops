@@ -52,6 +52,48 @@ func (ns NullOtpType) Value() (driver.Value, error) {
 	return string(ns.OtpType), nil
 }
 
+type Status string
+
+const (
+	StatusActive   Status = "active"
+	StatusInactive Status = "inactive"
+)
+
+func (e *Status) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = Status(s)
+	case string:
+		*e = Status(s)
+	default:
+		return fmt.Errorf("unsupported scan type for Status: %T", src)
+	}
+	return nil
+}
+
+type NullStatus struct {
+	Status Status `json:"status"`
+	Valid  bool   `json:"valid"` // Valid is true if Status is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.Status, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.Status.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.Status), nil
+}
+
 type Income struct {
 	ID           int64      `json:"id"`
 	MemberID     int64      `json:"member_id"`
@@ -62,14 +104,15 @@ type Income struct {
 }
 
 type Member struct {
-	ID              int64      `json:"id"`
-	MemberName      string     `json:"member_name"`
-	MemberContact   string     `json:"member_contact"`
-	Membership      int64      `json:"membership"`
-	CreatedBy       int64      `json:"created_by"`
-	MembershipStart *time.Time `json:"membership_start"`
-	MembershipEnd   *time.Time `json:"membership_end"`
-	Version         int32      `json:"version"`
+	ID               int64      `json:"id"`
+	MemberName       string     `json:"member_name"`
+	MemberContact    string     `json:"member_contact"`
+	Membership       *int64     `json:"membership"`
+	CreatedBy        int64      `json:"created_by"`
+	MembershipStatus Status     `json:"membership_status"`
+	MembershipStart  *time.Time `json:"membership_start"`
+	MembershipEnd    *time.Time `json:"membership_end"`
+	Version          int32      `json:"version"`
 }
 
 type Membership struct {
