@@ -15,6 +15,7 @@
 		mutationFn: addMember,
 		onSuccess: () => {
 			toast.success('Member created successfully');
+			queryClient.invalidateQueries({ queryKey: ['month-incomes'] });
 			queryClient.invalidateQueries({ queryKey: ['members'] });
 		},
 		onError: (error) => {

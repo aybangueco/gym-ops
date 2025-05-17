@@ -39,3 +39,8 @@ export type MembersResponse = {
 	metadata: Metadata;
 	members: Array<Member>;
 };
+
+export type MonthIncome = {
+	month: Date;
+	total_income: number;
+};
