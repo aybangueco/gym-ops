@@ -51,6 +51,7 @@
 				<Table.Head>Member Name</Table.Head>
 				<Table.Head>Member Contact</Table.Head>
 				<Table.Head>Membership</Table.Head>
+				<Table.Head>Membership Status</Table.Head>
 				<Table.Head>Membership Start</Table.Head>
 				<Table.Head>Membership End</Table.Head>
 				<Table.Head>Actions</Table.Head>
@@ -73,11 +74,20 @@
 							<Table.Cell
 								>{$getMembershipsQuery.data?.memberships.find(
 									(e) => e.id === Number(member.membership)
-								)?.membership_name}</Table.Cell
+								)?.membership_name ?? 'N/A'}</Table.Cell
 							>
 						{/if}
-						<Table.Cell>{new Date(member.membership_start).toISOString().split('T')[0]}</Table.Cell>
-						<Table.Cell>{new Date(member.membership_end).toISOString().split('T')[0]}</Table.Cell>
+						<Table.Cell>{member.membership_status}</Table.Cell>
+						<Table.Cell>
+							{member.membership_start
+								? new Date(member.membership_start).toISOString().split('T')[0]
+								: 'N/A'}
+						</Table.Cell>
+						<Table.Cell>
+							{member.membership_end
+								? new Date(member.membership_end).toISOString().split('T')[0]
+								: 'N/A'}
+						</Table.Cell>
 						<Table.Cell class="flex gap-3">
 							<Eye class="cursor-pointer hover:text-muted-foreground" />
 							<Trash

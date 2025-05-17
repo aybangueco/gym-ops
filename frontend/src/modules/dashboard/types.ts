@@ -22,11 +22,13 @@ export type MembershipsResponse = {
 	memberships: Array<Membership>;
 };
 
-export interface Member extends MemberSchema {
+export interface Member extends Omit<MemberSchema, 'membership'> {
 	id: number;
 	created_by: number;
-	membership_start: Date;
-	membership_end: Date;
+	membership: string | null;
+	membership_status: string;
+	membership_start: Date | null;
+	membership_end: Date | null;
 }
 
 export type MemberResponse = {

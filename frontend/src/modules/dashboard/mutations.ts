@@ -19,7 +19,7 @@ export async function addMember(data: MemberSchema) {
 		data: {
 			member_name: data.member_name,
 			member_contact: data.member_contact.toString(),
-			membership: Number(data.membership)
+			membership: data.membership == '0' ? null : Number(data.membership)
 		}
 	});
 }

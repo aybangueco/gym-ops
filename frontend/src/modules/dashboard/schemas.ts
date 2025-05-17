@@ -9,9 +9,12 @@ export const memberSchema = z.object({
 		.number()
 		.min(1, { message: 'Member contact too short' })
 		.max(999999999999999, { message: 'Member contact too long' }),
-	membership: z.string().refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
-		message: 'Please select a valid membership'
-	})
+	membership: z
+		.string()
+		.nonempty({ message: 'Please select a membership' })
+		.refine((val) => !isNaN(Number(val)) && Number(val) >= 0, {
+			message: 'Please select a valid membership'
+		})
 });
 
 export type MemberSchema = z.infer<typeof memberSchema>;

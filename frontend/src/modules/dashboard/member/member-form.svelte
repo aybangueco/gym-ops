@@ -69,14 +69,18 @@
 			<Form.Field {form} name="membership">
 				<Form.Control>
 					{#snippet children({ props })}
-						<Form.Label>Email</Form.Label>
+						<Form.Label>Membership</Form.Label>
 						<Select.Root type="single" bind:value={$formData.membership} name={props.name}>
 							<Select.Trigger {...props}>
-								{$formData.membership
-									? $getMembershipsQuery.data?.memberships.find(
-											(e) => e.id.toString() === $formData.membership.toString()
-										)?.membership_name
-									: 'Select membership'}
+								{#if $formData.membership === '0'}
+									Inactive
+								{:else if $formData.membership}
+									{$getMembershipsQuery.data?.memberships.find(
+										(e) => e.id.toString() === $formData.membership
+									)?.membership_name}
+								{:else}
+									Select membership
+								{/if}
 							</Select.Trigger>
 							<Select.Content>
 								{#if $getMembershipsQuery.isLoading}
@@ -87,6 +91,7 @@
 										<Select.Item value={`${membership.id}`} label={membership.membership_name} />
 									{/each}
 								{/if}
+								<Select.Item value={'0'} label={'Inactive'} />
 							</Select.Content>
 						</Select.Root>
 					{/snippet}
