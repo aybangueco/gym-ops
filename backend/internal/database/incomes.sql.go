@@ -44,7 +44,7 @@ func (q *Queries) CreateIncome(ctx context.Context, arg CreateIncomeParams) (Inc
 	return i, err
 }
 
-const getMonthIncomes = `-- name: GetMonthIncomes :many
+const getMonthIncomes = `-- name: GetMonthIncomes :one
 SELECT
   DATE_TRUNC('month', CURRENT_DATE)::timestamp AS month,
   COALESCE(SUM(amount), 0) AS total_income
@@ -57,24 +57,11 @@ type GetMonthIncomesRow struct {
 	TotalIncome interface{} `json:"total_income"`
 }
 
-func (q *Queries) GetMonthIncomes(ctx context.Context, createdBy int64) ([]GetMonthIncomesRow, error) {
-	rows, err := q.db.Query(ctx, getMonthIncomes, createdBy)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []GetMonthIncomesRow
-	for rows.Next() {
-		var i GetMonthIncomesRow
-		if err := rows.Scan(&i.Month, &i.TotalIncome); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
+func (q *Queries) GetMonthIncomes(ctx context.Context, createdBy int64) (GetMonthIncomesRow, error) {
+	row := q.db.QueryRow(ctx, getMonthIncomes, createdBy)
+	var i GetMonthIncomesRow
+	err := row.Scan(&i.Month, &i.TotalIncome)
+	return i, err
 }
 
 const getMonthlyIncomes = `-- name: GetMonthlyIncomes :many

@@ -1,4 +1,4 @@
--- name: GetMonthIncomes :many
+-- name: GetMonthIncomes :one
 SELECT
   DATE_TRUNC('month', CURRENT_DATE)::timestamp AS month,
   COALESCE(SUM(amount), 0) AS total_income
