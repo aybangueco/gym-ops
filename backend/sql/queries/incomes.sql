@@ -20,3 +20,8 @@ INSERT INTO incomes(
 ) VALUES (
   $1, $2, $3, $4
 ) RETURNING *;
+
+-- name: UpdateIncome :exec
+UPDATE incomes
+SET amount = $3
+WHERE membership_id = $1 AND created_by = $2;

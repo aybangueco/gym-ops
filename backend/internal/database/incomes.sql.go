@@ -111,3 +111,20 @@ func (q *Queries) GetMonthlyIncomes(ctx context.Context, createdBy int64) ([]Get
 	}
 	return items, nil
 }
+
+const updateIncome = `-- name: UpdateIncome :exec
+UPDATE incomes
+SET amount = $3
+WHERE membership_id = $1 AND created_by = $2
+`
+
+type UpdateIncomeParams struct {
+	MembershipID int64 `json:"membership_id"`
+	CreatedBy    int64 `json:"created_by"`
+	Amount       int64 `json:"amount"`
+}
+
+func (q *Queries) UpdateIncome(ctx context.Context, arg UpdateIncomeParams) error {
+	_, err := q.db.Exec(ctx, updateIncome, arg.MembershipID, arg.CreatedBy, arg.Amount)
+	return err
+}

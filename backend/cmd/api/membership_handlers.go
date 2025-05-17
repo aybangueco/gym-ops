@@ -195,6 +195,10 @@ func (app *application) updateMembershipHandler(w http.ResponseWriter, r *http.R
 		membership.MembershipLength = input.MembershipLength
 	}
 
+	if input.Cost != nil {
+		membership.Cost = *input.Cost
+	}
+
 	ctx, cancel = context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
 
@@ -202,9 +206,9 @@ func (app *application) updateMembershipHandler(w http.ResponseWriter, r *http.R
 		ID:               membership.ID,
 		CreatedBy:        membership.CreatedBy,
 		Version:          membership.Version,
-		MembershipName:   *input.MembershipName,
-		MembershipLength: input.MembershipLength,
-		Cost:             *input.Cost,
+		MembershipName:   membership.MembershipName,
+		MembershipLength: membership.MembershipLength,
+		Cost:             membership.Cost,
 	})
 	if err != nil {
 		app.serverErrorResponse(w, r, err)

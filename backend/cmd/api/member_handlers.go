@@ -154,6 +154,17 @@ func (app *application) createMemberHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
+	_, err = app.db.CreateIncome(r.Context(), database.CreateIncomeParams{
+		MemberID:     member.ID,
+		MembershipID: input.Membership,
+		Amount:       membership.Cost,
+		CreatedBy:    user.ID,
+	})
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
 	err = app.writeJSON(w, http.StatusCreated, envelope{"member": member}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
