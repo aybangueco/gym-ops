@@ -99,7 +99,7 @@ func (app *application) createMemberHandler(w http.ResponseWriter, r *http.Reque
 	var input struct {
 		MemberName    string              `json:"member_name"`
 		MemberContact string              `json:"member_contact"`
-		Membership    int64               `json:"membership"`
+		Membership    *int64              `json:"membership"`
 		Validator     validator.Validator `json:"-"`
 	}
 
@@ -111,58 +111,79 @@ func (app *application) createMemberHandler(w http.ResponseWriter, r *http.Reque
 
 	input.Validator.CheckField(input.MemberName != "", "member_name", "member name field is required")
 	input.Validator.CheckField(input.MemberContact != "", "member_contact", "member contact field is required")
-	input.Validator.CheckField(input.Membership > 0, "membership", "membership field is required")
 
 	if input.Validator.HasErrors() {
 		app.failedValidationResponse(w, r, input.Validator)
 		return
 	}
 
+	user := app.getContextAuthenticatedUser(r)
+
+	var membership *database.Membership
+
+	if input.Membership != nil {
+		m, err := app.db.GetMembershipByID(r.Context(), database.GetMembershipByIDParams{ID: *input.Membership, CreatedBy: user.ID})
+		if err != nil {
+			if errors.Is(err, pgx.ErrNoRows) {
+				input.Validator.AddFieldError("membership", "existing membership not found")
+				app.failedValidationResponse(w, r, input.Validator)
+				return
+			} else {
+				app.serverErrorResponse(w, r, err)
+				return
+			}
+		}
+
+		membership = &m
+	}
+
 	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
 
-	user := app.getContextAuthenticatedUser(r)
+	var (
+		membershipStatus string
+		membershipStart  *time.Time
+		membershipEnd    *time.Time
+	)
 
-	membership, err := app.db.GetMembershipByID(ctx, database.GetMembershipByIDParams{ID: input.Membership, CreatedBy: user.ID})
+	if input.Membership != nil {
+		membershipStatus = "active"
+		now := time.Now()
+		end := time.Now().Add(time.Duration(*membership.MembershipLength) * 24 * time.Hour)
+
+		membershipStart = &now
+		membershipEnd = &end
+	}
+
+	if input.Membership == nil {
+		membershipStatus = "inactive"
+	}
+
+	member, err := app.db.CreateMember(ctx, database.CreateMemberParams{
+		MemberName:       input.MemberName,
+		MemberContact:    input.MemberContact,
+		Membership:       input.Membership,
+		MembershipStatus: database.Status(membershipStatus),
+		CreatedBy:        user.ID,
+		MembershipStart:  membershipStart,
+		MembershipEnd:    membershipEnd,
+	})
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			input.Validator.AddFieldError("membership", "existing membership not found")
-			app.failedValidationResponse(w, r, input.Validator)
-			return
-		} else {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	if input.Membership != nil {
+		_, err = app.db.CreateIncome(r.Context(), database.CreateIncomeParams{
+			MemberID:     member.ID,
+			MembershipID: *input.Membership,
+			Amount:       membership.Cost,
+			CreatedBy:    user.ID,
+		})
+		if err != nil {
 			app.serverErrorResponse(w, r, err)
 			return
 		}
-	}
-
-	ctx, cancel = context.WithTimeout(r.Context(), 5*time.Second)
-	defer cancel()
-
-	membershipStart := time.Now()
-	membershipEnd := time.Now().Add(time.Duration(*membership.MembershipLength) * 24 * time.Hour)
-
-	member, err := app.db.CreateMember(ctx, database.CreateMemberParams{
-		MemberName:      input.MemberName,
-		MemberContact:   input.MemberContact,
-		Membership:      membership.ID,
-		CreatedBy:       user.ID,
-		MembershipStart: &membershipStart,
-		MembershipEnd:   &membershipEnd,
-	})
-	if err != nil {
-		app.serverErrorResponse(w, r, err)
-		return
-	}
-
-	_, err = app.db.CreateIncome(r.Context(), database.CreateIncomeParams{
-		MemberID:     member.ID,
-		MembershipID: input.Membership,
-		Amount:       membership.Cost,
-		CreatedBy:    user.ID,
-	})
-	if err != nil {
-		app.serverErrorResponse(w, r, err)
-		return
 	}
 
 	err = app.writeJSON(w, http.StatusCreated, envelope{"member": member}, nil)
@@ -247,7 +268,7 @@ func (app *application) updateMemberHandler(w http.ResponseWriter, r *http.Reque
 		memberShipStart := time.Now()
 		membershipEnd := time.Now().Add(time.Duration(*membership.MembershipLength) * 24 * time.Hour)
 
-		member.Membership = *input.Membership
+		member.Membership = input.Membership
 		member.MembershipStart = &memberShipStart
 		member.MembershipEnd = &membershipEnd
 	}

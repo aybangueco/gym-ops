@@ -9,6 +9,11 @@ sql:
         out: "internal/database"
         sql_package: "pgx/v5"
         overrides:
+          - column: "members.membership"
+            go_type:
+              type: "int64"
+              pointer: true
+            nullable: true
           - column: "memberships.membership_length"
             go_type:
               type: "int32"
