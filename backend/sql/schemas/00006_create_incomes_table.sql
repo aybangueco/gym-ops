@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS incomes (
     member_id BIGINT NOT NULL,
     membership_id BIGINT NOT NULL,
     amount BIGINT NOT NULL,
+    active BOOLEAN NOT NULL DEFAULT true,
     recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     created_by BIGINT NOT NULL,
     FOREIGN KEY (member_id) REFERENCES members(id) ON DELETE CASCADE,

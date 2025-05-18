@@ -23,5 +23,8 @@ INSERT INTO incomes(
 
 -- name: UpdateIncome :exec
 UPDATE incomes
-SET amount = $3
-WHERE membership_id = $1 AND created_by = $2;
+SET amount = $4, active = $5
+WHERE membership_id = $1 AND active = $2 AND created_by = $3;
+
+-- name: DeleteIncome :exec
+DELETE FROM incomes WHERE member_id = $1 AND membership_id = $2 AND active = $3 AND created_by = $4;

@@ -24,8 +24,9 @@ UPDATE members
     set member_name = $4,
     member_contact = $5,
     membership = $6,
-    membership_start = $7,
-    membership_end = $8,
+    membership_status = $7,
+    membership_start = $8,
+    membership_end = $9,
     version = version + 1
 WHERE id = $1 AND created_by = $2 AND version = $3
 RETURNING membership_start, membership_end;

@@ -156,22 +156,24 @@ UPDATE members
     set member_name = $4,
     member_contact = $5,
     membership = $6,
-    membership_start = $7,
-    membership_end = $8,
+    membership_status = $7,
+    membership_start = $8,
+    membership_end = $9,
     version = version + 1
 WHERE id = $1 AND created_by = $2 AND version = $3
 RETURNING membership_start, membership_end
 `
 
 type UpdateMemberParams struct {
-	ID              int64      `json:"id"`
-	CreatedBy       int64      `json:"created_by"`
-	Version         int32      `json:"version"`
-	MemberName      string     `json:"member_name"`
-	MemberContact   string     `json:"member_contact"`
-	Membership      *int64     `json:"membership"`
-	MembershipStart *time.Time `json:"membership_start"`
-	MembershipEnd   *time.Time `json:"membership_end"`
+	ID               int64      `json:"id"`
+	CreatedBy        int64      `json:"created_by"`
+	Version          int32      `json:"version"`
+	MemberName       string     `json:"member_name"`
+	MemberContact    string     `json:"member_contact"`
+	Membership       *int64     `json:"membership"`
+	MembershipStatus Status     `json:"membership_status"`
+	MembershipStart  *time.Time `json:"membership_start"`
+	MembershipEnd    *time.Time `json:"membership_end"`
 }
 
 type UpdateMemberRow struct {
@@ -187,6 +189,7 @@ func (q *Queries) UpdateMember(ctx context.Context, arg UpdateMemberParams) (Upd
 		arg.MemberName,
 		arg.MemberContact,
 		arg.Membership,
+		arg.MembershipStatus,
 		arg.MembershipStart,
 		arg.MembershipEnd,
 	)

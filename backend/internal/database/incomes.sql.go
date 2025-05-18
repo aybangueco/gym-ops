@@ -15,7 +15,7 @@ INSERT INTO incomes(
   member_id, membership_id, amount, created_by
 ) VALUES (
   $1, $2, $3, $4
-) RETURNING id, member_id, membership_id, amount, recorded_at, created_by
+) RETURNING id, member_id, membership_id, amount, active, recorded_at, created_by
 `
 
 type CreateIncomeParams struct {
@@ -38,10 +38,32 @@ func (q *Queries) CreateIncome(ctx context.Context, arg CreateIncomeParams) (Inc
 		&i.MemberID,
 		&i.MembershipID,
 		&i.Amount,
+		&i.Active,
 		&i.RecordedAt,
 		&i.CreatedBy,
 	)
 	return i, err
+}
+
+const deleteIncome = `-- name: DeleteIncome :exec
+DELETE FROM incomes WHERE member_id = $1 AND membership_id = $2 AND active = $3 AND created_by = $4
+`
+
+type DeleteIncomeParams struct {
+	MemberID     int64 `json:"member_id"`
+	MembershipID int64 `json:"membership_id"`
+	Active       bool  `json:"active"`
+	CreatedBy    int64 `json:"created_by"`
+}
+
+func (q *Queries) DeleteIncome(ctx context.Context, arg DeleteIncomeParams) error {
+	_, err := q.db.Exec(ctx, deleteIncome,
+		arg.MemberID,
+		arg.MembershipID,
+		arg.Active,
+		arg.CreatedBy,
+	)
+	return err
 }
 
 const getMonthIncomes = `-- name: GetMonthIncomes :one
@@ -101,17 +123,25 @@ func (q *Queries) GetMonthlyIncomes(ctx context.Context, createdBy int64) ([]Get
 
 const updateIncome = `-- name: UpdateIncome :exec
 UPDATE incomes
-SET amount = $3
-WHERE membership_id = $1 AND created_by = $2
+SET amount = $4, active = $5
+WHERE membership_id = $1 AND active = $2 AND created_by = $3
 `
 
 type UpdateIncomeParams struct {
 	MembershipID int64 `json:"membership_id"`
+	Active       bool  `json:"active"`
 	CreatedBy    int64 `json:"created_by"`
 	Amount       int64 `json:"amount"`
+	Active_2     bool  `json:"active_2"`
 }
 
 func (q *Queries) UpdateIncome(ctx context.Context, arg UpdateIncomeParams) error {
-	_, err := q.db.Exec(ctx, updateIncome, arg.MembershipID, arg.CreatedBy, arg.Amount)
+	_, err := q.db.Exec(ctx, updateIncome,
+		arg.MembershipID,
+		arg.Active,
+		arg.CreatedBy,
+		arg.Amount,
+		arg.Active_2,
+	)
 	return err
 }

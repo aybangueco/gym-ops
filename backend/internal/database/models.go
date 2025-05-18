@@ -99,6 +99,7 @@ type Income struct {
 	MemberID     int64      `json:"member_id"`
 	MembershipID int64      `json:"membership_id"`
 	Amount       int64      `json:"amount"`
+	Active       bool       `json:"active"`
 	RecordedAt   *time.Time `json:"recorded_at"`
 	CreatedBy    int64      `json:"created_by"`
 }
