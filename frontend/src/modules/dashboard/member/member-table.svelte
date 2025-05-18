@@ -1,10 +1,11 @@
 <script lang="ts">
 	import * as Table from '$lib/components/ui/table';
 	import * as Pagination from '$lib/components/ui/pagination';
-	import { Eye, Trash } from '@lucide/svelte';
+	import { Trash } from '@lucide/svelte';
 	import { deleteMember, getMembers, getMemberships } from '..';
 	import { createMutation, createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import toast from 'svelte-french-toast';
+	import { EditMemberForm } from '.';
 
 	let page = $state(1);
 
@@ -89,7 +90,12 @@
 								: 'N/A'}
 						</Table.Cell>
 						<Table.Cell class="flex gap-3">
-							<Eye class="cursor-pointer hover:text-muted-foreground" />
+							<EditMemberForm
+								memberId={member.id}
+								memberName={member.member_name}
+								memberContact={member.member_contact}
+								membership={member.membership ?? '0'}
+							/>
 							<Trash
 								onclick={() => {
 									$deleteMemberMutation.mutate(member.id);
@@ -101,7 +107,7 @@
 				{/each}
 				{#if $getMembersQuery.data.members.length < 1}
 					<Table.Row>
-						<Table.Cell colspan={7} class="w-full text-center">Empty members list</Table.Cell>
+						<Table.Cell colspan={8} class="w-full text-center">Empty members list</Table.Cell>
 					</Table.Row>
 				{/if}
 			{/if}

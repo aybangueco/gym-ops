@@ -24,6 +24,18 @@ export async function addMember(data: MemberSchema) {
 	});
 }
 
+export async function updateMember(id: number, data: MemberSchema) {
+	return await api({
+		method: 'PUT',
+		url: `/members/${id}`,
+		data: {
+			member_name: data.member_name,
+			member_contact: data.member_contact.toString(),
+			membership: data.membership == '0' ? null : Number(data.membership)
+		}
+	});
+}
+
 export async function deleteMember(id: number) {
 	return await api({
 		method: 'DELETE',
