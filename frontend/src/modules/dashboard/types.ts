@@ -44,3 +44,7 @@ export type MonthIncome = {
 	month: Date;
 	total_income: number;
 };
+
+export type MonthlyIncomesResponse = {
+	monthlyIncomes: Array<MonthIncome>;
+};

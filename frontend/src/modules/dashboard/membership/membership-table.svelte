@@ -19,7 +19,7 @@
 	});
 
 	const deleteMembershipMutation = createMutation({
-		mutationKey: ['deleteMember'],
+		mutationKey: ['deleteMemberhip'],
 		mutationFn: deleteMembership,
 		onSuccess: () => {
 			toast.success('Membership deleted successfully');

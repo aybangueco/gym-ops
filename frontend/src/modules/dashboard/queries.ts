@@ -1,8 +1,17 @@
 import { api } from '$lib/api';
-import { type MonthIncome, type MembershipsResponse, type MembersResponse } from '.';
+import {
+	type MonthIncome,
+	type MonthlyIncomesResponse,
+	type MembershipsResponse,
+	type MembersResponse
+} from '.';
 
 export async function getIncomesThisMonth() {
 	return await api<MonthIncome>({ method: 'GET', url: '/month-incomes' });
+}
+
+export async function getAllMonthlyIncomes() {
+	return await api<MonthlyIncomesResponse>({ method: 'GET', url: '/monthly-incomes' });
 }
 
 export async function getMembers({ page }: { page: number }) {

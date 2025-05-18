@@ -46,6 +46,7 @@
 	"dependencies": {
 		"@tanstack/svelte-query": "^5.71.1",
 		"axios": "^1.8.4",
+		"chart.js": "^4.4.9",
 		"mode-watcher": "^0.5.1",
 		"svelte-french-toast": "^1.2.0"
 	}
