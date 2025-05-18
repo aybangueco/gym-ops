@@ -244,15 +244,19 @@ func (app *application) updateMemberHandler(w http.ResponseWriter, r *http.Reque
 	ctx, cancel = context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
 
-	membership, err := app.db.GetMembershipByID(ctx, database.GetMembershipByIDParams{ID: *input.Membership, CreatedBy: user.ID})
-	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			input.Validator.AddFieldError("membership", "existing membership not found")
-			app.failedValidationResponse(w, r, input.Validator)
-			return
-		} else {
-			app.serverErrorResponse(w, r, err)
-			return
+	var membership database.Membership
+
+	if input.Membership != nil {
+		membership, err = app.db.GetMembershipByID(ctx, database.GetMembershipByIDParams{ID: *input.Membership, CreatedBy: user.ID})
+		if err != nil {
+			if errors.Is(err, pgx.ErrNoRows) {
+				input.Validator.AddFieldError("membership", "existing membership not found")
+				app.failedValidationResponse(w, r, input.Validator)
+				return
+			} else {
+				app.serverErrorResponse(w, r, err)
+				return
+			}
 		}
 	}
 
@@ -264,27 +268,71 @@ func (app *application) updateMemberHandler(w http.ResponseWriter, r *http.Reque
 		member.MemberContact = *input.MemberContact
 	}
 
-	if input.Membership != nil {
+	if input.Membership != nil && input.Membership != member.Membership && member.Membership != nil {
+		if err = app.db.DeleteIncome(r.Context(), database.DeleteIncomeParams{
+			MemberID:     member.ID,
+			MembershipID: *member.Membership,
+			Active:       true,
+			CreatedBy:    user.ID,
+		}); err != nil {
+			app.serverErrorResponse(w, r, err)
+			return
+		}
+	}
+
+	if input.Membership != nil && input.Membership != member.Membership {
+		_, err = app.db.CreateIncome(r.Context(), database.CreateIncomeParams{
+			MemberID:     member.ID,
+			MembershipID: *input.Membership,
+			Amount:       membership.Cost,
+			CreatedBy:    user.ID,
+		})
+		if err != nil {
+			app.serverErrorResponse(w, r, err)
+			return
+		}
+
 		memberShipStart := time.Now()
 		membershipEnd := time.Now().Add(time.Duration(*membership.MembershipLength) * 24 * time.Hour)
 
 		member.Membership = input.Membership
+		member.MembershipStatus = database.StatusActive
 		member.MembershipStart = &memberShipStart
 		member.MembershipEnd = &membershipEnd
+	}
+
+	if input.Membership == nil && member.MembershipStatus == database.StatusActive {
+		if err = app.db.DeleteIncome(r.Context(), database.DeleteIncomeParams{
+			MemberID:     member.ID,
+			MembershipID: *member.Membership,
+			Active:       true,
+			CreatedBy:    user.ID,
+		}); err != nil {
+			app.serverErrorResponse(w, r, err)
+			return
+		}
+	}
+
+	if input.Membership == nil {
+		member.Membership = input.Membership
+		member.MembershipStatus = database.StatusInactive
+		member.MembershipStart = nil
+		member.MembershipEnd = nil
 	}
 
 	ctx, cancel = context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
 
 	updatedMember, err := app.db.UpdateMember(ctx, database.UpdateMemberParams{
-		ID:              id,
-		CreatedBy:       member.CreatedBy,
-		Version:         member.Version,
-		MemberName:      member.MemberName,
-		MemberContact:   member.MemberContact,
-		Membership:      member.Membership,
-		MembershipStart: member.MembershipStart,
-		MembershipEnd:   member.MembershipEnd,
+		ID:               id,
+		CreatedBy:        member.CreatedBy,
+		Version:          member.Version,
+		MemberName:       member.MemberName,
+		MemberContact:    member.MemberContact,
+		Membership:       member.Membership,
+		MembershipStatus: member.MembershipStatus,
+		MembershipStart:  member.MembershipStart,
+		MembershipEnd:    member.MembershipEnd,
 	})
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
