@@ -1,6 +1,12 @@
 <script lang="ts">
 	import IncomeBarChart from '$lib/components/income-bar-chart.svelte';
-	import { getAllMonthlyIncomes, getIncomesThisMonth } from '@modules/dashboard';
+	import MembershipsPieChart from '$lib/components/memberships-pie-chart.svelte';
+	import {
+		getAllMonthlyIncomes,
+		getIncomesThisMonth,
+		getMemberships,
+		getMembershipsTotalMembers
+	} from '@modules/dashboard';
 	import { createQuery } from '@tanstack/svelte-query';
 
 	const getThisMonthIncomesQuery = createQuery({
@@ -11,6 +17,18 @@
 	const getAllIncomes = createQuery({
 		queryKey: ['monthly-incomes'],
 		queryFn: getAllMonthlyIncomes
+	});
+
+	const getMembershipsQuery = createQuery({
+		queryKey: ['memberships'],
+		queryFn: async () => {
+			return await getMemberships({ page: 1, limit: 99999 });
+		}
+	});
+
+	const getMembershipsTotalMembersQuery = createQuery({
+		queryKey: ['memberships-total-members'],
+		queryFn: getMembershipsTotalMembers
 	});
 </script>
 
@@ -35,5 +53,16 @@
 		<p>Error</p>
 	{:else}
 		<IncomeBarChart barTitle="Monthly Incomes" chartData={$getAllIncomes.data.monthlyIncomes} />
+	{/if}
+	{#if $getMembershipsQuery.isPending && $getMembershipsTotalMembersQuery.isPending}
+		<p>Loading...</p>
+	{:else if $getMembershipsQuery.isError && $getMembershipsTotalMembersQuery.isError}
+		<p>Error</p>
+	{:else if $getMembershipsQuery.data && $getMembershipsTotalMembersQuery.data}
+		<MembershipsPieChart
+			barTitle="Most members of memberships"
+			chartData={$getMembershipsTotalMembersQuery.data}
+			memberships={$getMembershipsQuery.data.memberships}
+		/>
 	{/if}
 </div>

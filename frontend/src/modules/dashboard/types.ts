@@ -48,3 +48,8 @@ export type MonthIncome = {
 export type MonthlyIncomesResponse = {
 	monthlyIncomes: Array<MonthIncome>;
 };
+
+export type TotalMember = {
+	membership: number;
+	total: number;
+};

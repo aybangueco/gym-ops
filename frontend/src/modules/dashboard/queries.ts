@@ -3,7 +3,8 @@ import {
 	type MonthIncome,
 	type MonthlyIncomesResponse,
 	type MembershipsResponse,
-	type MembersResponse
+	type MembersResponse,
+	type TotalMember
 } from '.';
 
 export async function getIncomesThisMonth() {
@@ -16,6 +17,13 @@ export async function getAllMonthlyIncomes() {
 
 export async function getMembers({ page }: { page: number }) {
 	return await api<MembersResponse>({ method: 'GET', url: '/members', params: { page } });
+}
+
+export async function getMembershipsTotalMembers() {
+	return await api<TotalMember[]>({
+		method: 'GET',
+		url: '/memberships/member-count'
+	});
 }
 
 export async function getMemberships({ page, limit }: { page: number; limit?: number }) {
