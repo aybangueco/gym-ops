@@ -15,13 +15,46 @@ import (
 const countMembers = `-- name: CountMembers :one
 SELECT COUNT(*) as total_members
 FROM members
+WHERE created_by = $1
 `
 
-func (q *Queries) CountMembers(ctx context.Context) (int64, error) {
-	row := q.db.QueryRow(ctx, countMembers)
+func (q *Queries) CountMembers(ctx context.Context, createdBy int64) (int64, error) {
+	row := q.db.QueryRow(ctx, countMembers, createdBy)
 	var total_members int64
 	err := row.Scan(&total_members)
 	return total_members, err
+}
+
+const countMembersOfMemberships = `-- name: CountMembersOfMemberships :many
+SELECT membership, COUNT(*) as total
+FROM members
+WHERE created_by = $1
+GROUP BY membership
+`
+
+type CountMembersOfMembershipsRow struct {
+	Membership *int64 `json:"membership"`
+	Total      int64  `json:"total"`
+}
+
+func (q *Queries) CountMembersOfMemberships(ctx context.Context, createdBy int64) ([]CountMembersOfMembershipsRow, error) {
+	rows, err := q.db.Query(ctx, countMembersOfMemberships, createdBy)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []CountMembersOfMembershipsRow
+	for rows.Next() {
+		var i CountMembersOfMembershipsRow
+		if err := rows.Scan(&i.Membership, &i.Total); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const createMember = `-- name: CreateMember :one

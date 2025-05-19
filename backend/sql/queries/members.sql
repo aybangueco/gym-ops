@@ -6,7 +6,14 @@ LIMIT $2 OFFSET $3;
 
 -- name: CountMembers :one
 SELECT COUNT(*) as total_members
-FROM members;
+FROM members
+WHERE created_by = $1;
+
+-- name: CountMembersOfMemberships :many
+SELECT membership, COUNT(*) as total
+FROM members
+WHERE created_by = $1
+GROUP BY membership;
 
 -- name: GetMemberByID :one
 SELECT * FROM members
