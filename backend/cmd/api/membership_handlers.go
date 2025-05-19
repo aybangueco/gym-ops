@@ -95,6 +95,29 @@ func (app *application) getMembershipByID(w http.ResponseWriter, r *http.Request
 	}
 }
 
+func (app *application) getMembershipMemberCountsHandler(w http.ResponseWriter, r *http.Request) {
+	user := app.getContextAuthenticatedUser(r)
+
+	total, err := app.db.CountMembersOfMemberships(r.Context(), user.ID)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	if len(total) < 1 {
+		err = app.writeJSON(w, http.StatusOK, []database.CountMembersOfMembershipsRow{}, nil)
+		if err != nil {
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	err = app.writeJSON(w, http.StatusOK, total, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}
+
 func (app *application) createMembershipHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		MembershipName   string              `json:"membership_name"`

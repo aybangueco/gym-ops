@@ -49,11 +49,15 @@ func (app *application) routes() http.Handler {
 	r.Put("/api/memberships/{id}", app.requireActivated(app.updateMembershipHandler))
 	r.Delete("/api/memberships/{id}", app.requireActivated(app.deleteMembershipHandler))
 
+	r.Get("/api/memberships/member-count", app.requireActivated(app.getMembershipMemberCountsHandler))
+
 	r.Get("/api/members", app.requireActivated(app.getMembersHandler))
 	r.Get("/api/members/{id}", app.requireActivated(app.getMemberByID))
 	r.Post("/api/members", app.requireActivated(app.createMemberHandler))
 	r.Put("/api/members/{id}", app.requireActivated(app.updateMemberHandler))
 	r.Delete("/api/members/{id}", app.requireActivated(app.deleteMemberHandler))
+
+	r.Get("/api/members/total", app.requireActivated(app.getTotalMembersHandler))
 
 	r.Get("/api/month-incomes", app.requireActivated(app.getMonthIncomesHandler))
 	r.Get("/api/monthly-incomes", app.requireActivated(app.getMonthlyIncomesHandler))

@@ -39,7 +39,7 @@ func (app *application) getMembersHandler(w http.ResponseWriter, r *http.Request
 		members = []database.Member{}
 	}
 
-	count, err := app.db.CountMembers(r.Context())
+	count, err := app.db.CountMembers(r.Context(), user.ID)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -92,6 +92,22 @@ func (app *application) getMemberByID(w http.ResponseWriter, r *http.Request) {
 	err = app.writeJSON(w, http.StatusOK, envelope{"member": member}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
+	}
+}
+
+func (app *application) getTotalMembersHandler(w http.ResponseWriter, r *http.Request) {
+	user := app.getContextAuthenticatedUser(r)
+
+	total, err := app.db.CountMembers(r.Context(), user.ID)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = app.writeJSON(w, http.StatusOK, total, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
 	}
 }
 
