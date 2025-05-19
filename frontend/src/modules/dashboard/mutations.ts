@@ -5,6 +5,18 @@ export async function addMembership(data: MembershipSchema) {
 	return await api({ method: 'POST', url: '/memberships', data });
 }
 
+export async function updateMembership(id: number, data: MembershipSchema) {
+	return await api({
+		method: 'PUT',
+		url: `/memberships/${id}`,
+		data: {
+			membership_name: data.membership_name,
+			membership_length: data.membership_length,
+			cost: data.cost
+		}
+	});
+}
+
 export async function deleteMembership(id: number) {
 	return await api({
 		method: 'DELETE',

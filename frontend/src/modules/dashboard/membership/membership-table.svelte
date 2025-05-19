@@ -5,7 +5,8 @@
 	import { getMemberships } from '../queries';
 	import { deleteMembership } from '../mutations';
 	import toast from 'svelte-french-toast';
-	import { Eye, Trash } from '@lucide/svelte';
+	import { Trash } from '@lucide/svelte';
+	import { EditMembershipForm } from '.';
 
 	let page = $state(1);
 
@@ -60,7 +61,12 @@
 						<Table.Cell>{membership.membership_length}</Table.Cell>
 						<Table.Cell>{membership.cost}</Table.Cell>
 						<Table.Cell class="flex gap-3">
-							<Eye class="cursor-pointer hover:text-muted-foreground" />
+							<EditMembershipForm
+								membershipID={membership.id}
+								membershipName={membership.membership_name}
+								membershipLength={membership.membership_length}
+								cost={membership.cost}
+							/>
 							<Trash
 								onclick={() => {
 									$deleteMembershipMutation.mutate(membership.id);
