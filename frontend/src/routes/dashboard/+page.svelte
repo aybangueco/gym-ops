@@ -7,6 +7,7 @@
 		getMemberships,
 		getMembershipsTotalMembers
 	} from '@modules/dashboard';
+	import { ExpiredMemberTable } from '@modules/dashboard/member';
 	import { createQuery } from '@tanstack/svelte-query';
 
 	const getThisMonthIncomesQuery = createQuery({
@@ -65,4 +66,7 @@
 			memberships={$getMembershipsQuery.data.memberships}
 		/>
 	{/if}
+	<div class="col-span-2">
+		<ExpiredMemberTable />
+	</div>
 </div>

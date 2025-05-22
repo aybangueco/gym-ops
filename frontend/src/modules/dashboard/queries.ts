@@ -19,6 +19,14 @@ export async function getMembers({ page }: { page: number }) {
 	return await api<MembersResponse>({ method: 'GET', url: '/members', params: { page } });
 }
 
+export async function getExpiredMembers({ page }: { page: number }) {
+	return await api<MembersResponse>({
+		method: 'GET',
+		url: '/members/expired',
+		params: { page }
+	});
+}
+
 export async function getMembershipsTotalMembers() {
 	return await api<TotalMember[]>({
 		method: 'GET',
