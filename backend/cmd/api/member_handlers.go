@@ -59,6 +59,52 @@ func (app *application) getMembersHandler(w http.ResponseWriter, r *http.Request
 	}
 }
 
+func (app *application) getExpiredMembersHandler(w http.ResponseWriter, r *http.Request) {
+	user := app.getContextAuthenticatedUser(r)
+
+	params := r.URL.Query()
+
+	limit := app.readParamInt(params, "limit", 10)
+	page := app.readParamInt(params, "page", 1)
+	offset := (page - 1) * limit
+
+	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
+	defer cancel()
+
+	expiredMembers, err := app.db.GetExpiredMembers(ctx, database.GetExpiredMembersParams{
+		CreatedBy: user.ID,
+		Limit:     int32(limit),
+		Offset:    int32(offset),
+	})
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	if expiredMembers == nil {
+		expiredMembers = []database.Member{}
+	}
+
+	count, err := app.db.CountExpiredMembers(r.Context(), user.ID)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = app.writeJSON(w, http.StatusOK, envelope{
+		"metadata": map[string]any{
+			"count":       count,
+			"page":        page,
+			"per_page":    limit,
+			"total_pages": count / int64(page),
+		},
+		"members": expiredMembers,
+	}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}
+
 func (app *application) getMemberByID(w http.ResponseWriter, r *http.Request) {
 	user := app.getContextAuthenticatedUser(r)
 

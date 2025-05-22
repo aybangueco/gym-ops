@@ -12,6 +12,19 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 )
 
+const countExpiredMembers = `-- name: CountExpiredMembers :one
+SELECT COUNT(*) as total_members
+FROM members
+WHERE created_by = $1 AND membership_end IS NOT NULL AND membership_end < NOW()
+`
+
+func (q *Queries) CountExpiredMembers(ctx context.Context, createdBy int64) (int64, error) {
+	row := q.db.QueryRow(ctx, countExpiredMembers, createdBy)
+	var total_members int64
+	err := row.Scan(&total_members)
+	return total_members, err
+}
+
 const countMembers = `-- name: CountMembers :one
 SELECT COUNT(*) as total_members
 FROM members
@@ -112,6 +125,49 @@ type DeleteMemberParams struct {
 
 func (q *Queries) DeleteMember(ctx context.Context, arg DeleteMemberParams) (pgconn.CommandTag, error) {
 	return q.db.Exec(ctx, deleteMember, arg.ID, arg.CreatedBy)
+}
+
+const getExpiredMembers = `-- name: GetExpiredMembers :many
+SELECT id, member_name, member_contact, membership, created_by, membership_status, membership_start, membership_end, version FROM members
+WHERE created_by = $1 AND membership_end IS NOT NULL AND membership_end < NOW()
+ORDER BY id
+LIMIT $2 OFFSET $3
+`
+
+type GetExpiredMembersParams struct {
+	CreatedBy int64 `json:"created_by"`
+	Limit     int32 `json:"limit"`
+	Offset    int32 `json:"offset"`
+}
+
+func (q *Queries) GetExpiredMembers(ctx context.Context, arg GetExpiredMembersParams) ([]Member, error) {
+	rows, err := q.db.Query(ctx, getExpiredMembers, arg.CreatedBy, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Member
+	for rows.Next() {
+		var i Member
+		if err := rows.Scan(
+			&i.ID,
+			&i.MemberName,
+			&i.MemberContact,
+			&i.Membership,
+			&i.CreatedBy,
+			&i.MembershipStatus,
+			&i.MembershipStart,
+			&i.MembershipEnd,
+			&i.Version,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getMemberByID = `-- name: GetMemberByID :one

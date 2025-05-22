@@ -52,6 +52,7 @@ func (app *application) routes() http.Handler {
 	r.Get("/api/memberships/member-count", app.requireActivated(app.getMembershipMemberCountsHandler))
 
 	r.Get("/api/members", app.requireActivated(app.getMembersHandler))
+	r.Get("/api/members/expired", app.requireActivated(app.getExpiredMembersHandler))
 	r.Get("/api/members/{id}", app.requireActivated(app.getMemberByID))
 	r.Post("/api/members", app.requireActivated(app.createMemberHandler))
 	r.Put("/api/members/{id}", app.requireActivated(app.updateMemberHandler))

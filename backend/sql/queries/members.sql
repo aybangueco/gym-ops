@@ -4,10 +4,21 @@ WHERE created_by = $1
 ORDER BY id
 LIMIT $2 OFFSET $3;
 
+-- name: GetExpiredMembers :many
+SELECT * FROM members
+WHERE created_by = $1 AND membership_end IS NOT NULL AND membership_end < NOW()
+ORDER BY id
+LIMIT $2 OFFSET $3;
+
 -- name: CountMembers :one
 SELECT COUNT(*) as total_members
 FROM members
 WHERE created_by = $1;
+
+-- name: CountExpiredMembers :one
+SELECT COUNT(*) as total_members
+FROM members
+WHERE created_by = $1 AND membership_end IS NOT NULL AND membership_end < NOW();
 
 -- name: CountMembersOfMemberships :many
 SELECT membership, COUNT(*) as total
