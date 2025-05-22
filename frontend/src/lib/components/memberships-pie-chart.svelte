@@ -21,9 +21,18 @@
 	let canvas = $state<HTMLCanvasElement | undefined>(undefined);
 	let chart = $state<Chart<'pie'> | undefined>(undefined);
 
+	const createRandomColor = () => {
+		const r = Math.floor(Math.random() * 156 + 100);
+		const g = Math.floor(Math.random() * 156 + 100);
+		const b = Math.floor(Math.random() * 156 + 100);
+		return `rgba(${r}, ${g}, ${b}, 0.7)`;
+	};
+
 	Chart.register(PieController, ArcElement, CategoryScale, LinearScale, Tooltip, Legend, Title);
 
 	function createChart() {
+		const backgroundColors = chartData.map(() => createRandomColor());
+
 		if (!canvas) return;
 		return new Chart(canvas, {
 			type: 'pie',
@@ -33,9 +42,9 @@
 				),
 				datasets: [
 					{
-						label: `Total Incomes`,
+						label: `Total Members`,
 						data: chartData.map((e) => e.total),
-						backgroundColor: 'rgba(75, 192, 192, 0.5)',
+						backgroundColor: backgroundColors,
 						borderColor: 'rgba(75, 192, 192, 1)',
 						borderWidth: 1
 					}
