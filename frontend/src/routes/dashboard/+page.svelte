@@ -5,7 +5,8 @@
 		getAllMonthlyIncomes,
 		getIncomesThisMonth,
 		getMemberships,
-		getMembershipsTotalMembers
+		getMembershipsTotalMembers,
+		getTotalMembers
 	} from '@modules/dashboard';
 	import { ExpiredMemberTable } from '@modules/dashboard/member';
 	import { createQuery } from '@tanstack/svelte-query';
@@ -27,6 +28,11 @@
 		}
 	});
 
+	const getTotalMembersQuery = createQuery({
+		queryKey: ['total-members'],
+		queryFn: getTotalMembers
+	});
+
 	const getMembershipsTotalMembersQuery = createQuery({
 		queryKey: ['memberships-total-members'],
 		queryFn: getMembershipsTotalMembers
@@ -35,8 +41,14 @@
 
 <div class="grid grid-cols-2 justify-center gap-3">
 	<div class="rounded-md bg-secondary p-5">
-		<h1 class="text-2xl font-bold">Active Members</h1>
-		<p>30</p>
+		<h1 class="text-2xl font-bold">Total Members</h1>
+		{#if $getTotalMembersQuery.isPending}
+			<p>Loading...</p>
+		{:else if $getTotalMembersQuery.isError}
+			<p>Error</p>
+		{:else}
+			<p>{$getTotalMembersQuery.data.total_members}</p>
+		{/if}
 	</div>
 	<div class="rounded-md bg-secondary p-5">
 		<h1 class="text-2xl font-bold">Total Income This Month</h1>

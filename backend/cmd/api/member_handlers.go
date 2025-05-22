@@ -150,7 +150,7 @@ func (app *application) getTotalMembersHandler(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	err = app.writeJSON(w, http.StatusOK, total, nil)
+	err = app.writeJSON(w, http.StatusOK, envelope{"total_members": total}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

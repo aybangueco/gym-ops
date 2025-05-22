@@ -35,6 +35,10 @@ export type MemberResponse = {
 	member: Member;
 };
 
+export type TotalMembersResponse = {
+	total_members: number;
+};
+
 export type MembersResponse = {
 	metadata: Metadata;
 	members: Array<Member>;

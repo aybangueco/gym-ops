@@ -4,7 +4,8 @@ import {
 	type MonthlyIncomesResponse,
 	type MembershipsResponse,
 	type MembersResponse,
-	type TotalMember
+	type TotalMember,
+	type TotalMembersResponse
 } from '.';
 
 export async function getIncomesThisMonth() {
@@ -17,6 +18,13 @@ export async function getAllMonthlyIncomes() {
 
 export async function getMembers({ page }: { page: number }) {
 	return await api<MembersResponse>({ method: 'GET', url: '/members', params: { page } });
+}
+
+export async function getTotalMembers() {
+	return await api<TotalMembersResponse>({
+		method: 'GET',
+		url: '/members/total'
+	});
 }
 
 export async function getExpiredMembers({ page }: { page: number }) {
