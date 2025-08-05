@@ -1,59 +1,36 @@
-# GymOps 🏋️‍♂️
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-**GymOps** is a modern, web-based gym management system designed to help gym owners and staff streamline their day-to-day operations — from managing memberships to tracking member activity.  
-This project was developed during my internship as a hands-on way to explore and learn **SvelteKit** and **Golang**.
+## Getting Started
 
----
+First, run the development server:
 
-## 📌 The Problem
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
+```
 
-Many gyms still rely on manual processes or outdated systems, leading to:
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-- Inefficient member and subscription tracking
-- Outdated or incomplete member records
-- Limited insight into gym performance and member activity
-- Lack of a centralized system for staff coordination
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
----
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-## 💡 The Solution
+## Learn More
 
-**GymOps** solves these problems by providing a centralized platform with features such as:
+To learn more about Next.js, take a look at the following resources:
 
-- 🧾 Member registration and management
-- 🕐 Automated membership expiration tracking and notifications
-- 📊 Real-time dashboard with analytics and trends
-- 🔒 Secure authentication
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-By digitizing gym operations, GymOps reduces administrative overhead, minimizes errors, and improves operational efficiency.
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
----
+## Deploy on Vercel
 
-## 🎯 Motivation
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-With the rise in fitness awareness, gyms — especially small to medium-sized ones — face increasing demands that traditional tools can’t keep up with.  
-GymOps was built to empower these gyms with a modern, cost-effective solution that helps them stay competitive without relying on expensive commercial software.
-
----
-
-## ⚙️ Tech Stack
-
-### 🧠 Frontend
-
-- **SvelteKit** – Lightning-fast frontend framework for modern web apps
-- **Tailwind CSS** – Utility-first CSS framework for building custom UIs quickly
-- **Shadcn UI** – Accessible, headless components for clean and modern design
-
-### 🛠 Backend
-
-- **Go (Golang)** – Powerful and efficient backend language for building RESTful APIs
-- **PostgreSQL** – Reliable, scalable, open-source relational database
-- **SQLC** – Generates type-safe Go code from raw SQL queries for safe and efficient database access
-
-### 🔧 Dev Tools
-
-- **Docker** – Containerized setup for consistent development environments
-- **TypeScript** – Strongly typed JavaScript used on the frontend for better reliability
-- **ESLint & Prettier** – Linting and formatting tools to maintain clean, consistent code
-
----
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
