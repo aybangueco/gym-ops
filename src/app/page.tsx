@@ -252,7 +252,7 @@ export default function LandingPage() {
           <div className="mb-16 text-center">
             <h2 className="mb-4 text-3xl font-bold">Pricing Plans</h2>
             <p className="text-muted-foreground text-xl">
-              Choose the perfect plan for your gym's needs
+              Choose the perfect plan for your gym&apos;s needs
             </p>
           </div>
 
@@ -315,7 +315,7 @@ export default function LandingPage() {
               <Card key={index} className="transition-shadow hover:shadow-lg">
                 <CardContent className="pt-6">
                   <blockquote className="text-muted-foreground mb-4 italic">
-                    "{testimonial.quote}"
+                    &quot;{testimonial.quote}&quot;
                   </blockquote>
                   <div className="flex items-center">
                     <div className="bg-primary/10 mr-3 flex h-10 w-10 items-center justify-center rounded-full">
