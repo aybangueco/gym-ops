@@ -9,7 +9,8 @@ import {
   DollarSign,
   ShoppingCart,
   Settings,
-  LogOut
+  LogOut,
+  Book
 } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
@@ -24,6 +25,7 @@ export default function DashboardSidebar() {
   const navItems = [
     { name: 'Home', path: '/dashboard', icon: Home },
     { name: 'Members', path: '/dashboard/members', icon: Users },
+    { name: 'Memberships', path: '/dashboard/memberships', icon: Book },
     { name: 'Attendance', path: '/dashboard/attendance', icon: Calendar },
     { name: 'Payments', path: '/dashboard/payments', icon: DollarSign },
     { name: 'POS', path: '/dashboard/pos', icon: ShoppingCart },
@@ -75,7 +77,7 @@ export default function DashboardSidebar() {
       <div className="mt-auto">
         <Button
           onClick={async () => await signOutUser(router)}
-          variant="destructive"
+          variant="default"
           className={`${isCollapsed ? 'justify-center' : ''} w-full`}
         >
           <LogOut className="h-5 w-5" />
