@@ -56,7 +56,7 @@ export function DataTable<TData, TValue>({
     <div>
       <div className="mb-3 max-w-xs">
         <Input
-          value=""
+          value={globalFilter}
           onChange={(e) => table.setGlobalFilter(String(e.target.value))}
           placeholder="Search..."
         />
