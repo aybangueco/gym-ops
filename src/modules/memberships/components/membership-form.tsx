@@ -12,23 +12,56 @@ import {
 import { Input } from '@/components/ui/input'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
-import { membershipSchema, MembershipSchema } from '../'
+import {
+  actionCreateMembership,
+  actionUpdateMembership,
+  membershipSchema,
+  MembershipSchema
+} from '../'
+import { Membership } from '@/generated/prisma'
+import toast from 'react-hot-toast'
 
-export default function MembershipForm() {
+type MembershipFormProps = {
+  id?: number
+  data?: Membership
+  state: 'CREATE' | 'UPDATE'
+}
+
+export default function MembershipForm({
+  id,
+  data,
+  state
+}: MembershipFormProps) {
   const form = useForm<MembershipSchema>({
     resolver: zodResolver(membershipSchema),
     defaultValues: {
-      name: '',
-      length: '',
-      price: ''
+      name: data?.name ?? '',
+      length: data?.length.toString() ?? '',
+      price: data?.price.toString() ?? ''
     }
   })
 
-  function onSubmit(values: MembershipSchema) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values)
+  async function onSubmit(values: MembershipSchema) {
+    if (state === 'CREATE') {
+      try {
+        await actionCreateMembership(values)
+        toast.success('Membership created successfully')
+        form.reset()
+      } catch (_) {
+        toast.error('Error ceating membership')
+      }
+    }
+
+    if (state === 'UPDATE' && id) {
+      try {
+        await actionUpdateMembership({ id, inputData: values })
+        toast.success('Membership updated successfully')
+      } catch (_) {
+        toast.error('Error updating membership')
+      }
+    }
   }
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="mb-5 space-y-8">
