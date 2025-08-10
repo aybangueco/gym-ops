@@ -1,7 +1,10 @@
+'use server'
+
 import { Membership } from '@/generated/prisma'
 import { getSession } from '../auth'
 import prisma from '@/lib/prisma'
 import { MembershipSchema } from './'
+import { revalidatePath } from 'next/cache'
 
 export async function actionGetMemberships(): Promise<{
   data: Membership[] | null
@@ -85,6 +88,8 @@ export async function actionCreateMembership(
       }
     })
 
+    revalidatePath('/memberships')
+
     return { data: membership, error: null, ok: true }
   } catch (error) {
     return { data: null, error, ok: false }
@@ -125,8 +130,35 @@ export async function actionUpdateMembership({
       }
     })
 
+    revalidatePath('/memberships')
+
     return { data: membership, error: null, ok: true }
   } catch (error) {
     return { data: null, error, ok: false }
+  }
+}
+
+export async function actionDeleteMembership(
+  id: number
+): Promise<{ ok: boolean; error: unknown }> {
+  try {
+    const session = await getSession()
+
+    if (!session) {
+      return {
+        error: new Error('Unauthorized user session'),
+        ok: false
+      }
+    }
+
+    await prisma.membership.delete({
+      where: { id, createdBy: session.user.id }
+    })
+
+    revalidatePath('/memberships')
+
+    return { error: null, ok: true }
+  } catch (error) {
+    return { error, ok: false }
   }
 }
