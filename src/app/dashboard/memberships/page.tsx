@@ -9,7 +9,7 @@ import {
 import { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 
-export const metaData: Metadata = {
+export const metadata: Metadata = {
   title: 'Gym Ops | Memberships'
 }
 
@@ -26,7 +26,7 @@ export default async function MembershipsPage() {
     <section className="p-3">
       <div>
         <h1 className="mb-5 text-3xl font-bold">Memberships Management</h1>
-        <MembershipForm />
+        <MembershipForm state="CREATE" />
         <DataTable columns={MembershipColumns} data={memberships.data ?? []} />
       </div>
     </section>
