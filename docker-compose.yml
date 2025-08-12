@@ -1,9 +1,9 @@
 services:
   database:
     image: postgres:latest
-    container_name: GYM-OPS-database
+    container_name: gym-ops-database
     environment:
-      - POSTGRES_DB=gymops
+      - POSTGRES_DB=gym-ops
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - TZ=Asia/Manila
