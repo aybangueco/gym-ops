@@ -21,7 +21,9 @@ export default function DeleteDialog({
 }: DeleteDialogProps) {
   return (
     <AlertDialog>
-      <AlertDialogTrigger>Delete</AlertDialogTrigger>
+      <AlertDialogTrigger className="w-full text-left">
+        Delete
+      </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>
