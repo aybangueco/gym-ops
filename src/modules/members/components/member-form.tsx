@@ -9,26 +9,65 @@ import {
   FormLabel,
   FormMessage
 } from '@/components/ui/form'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
-import { memberSchema, MemberSchema } from '../'
+import {
+  actionCreateMember,
+  actionUpdateMember,
+  memberSchema,
+  MemberSchema
+} from '../'
+import toast from 'react-hot-toast'
+import { useMemberDataContext } from './member-data-provider'
 
-export default function MemberForm() {
+type MemberFormProps = {
+  id?: number
+  data?: MemberSchema
+  state: 'CREATE' | 'UPDATE'
+}
+
+export default function MemberForm({ id, data, state }: MemberFormProps) {
+  const { memberships } = useMemberDataContext()
+
   const form = useForm<MemberSchema>({
     resolver: zodResolver(memberSchema),
     defaultValues: {
-      name: '',
-      email: '',
-      membership: ''
+      name: data?.name ?? '',
+      email: data?.email ?? '',
+      membershipId: data?.membershipId ?? ''
     }
   })
 
-  function onSubmit(values: MemberSchema) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values)
+  async function onSubmit(values: MemberSchema) {
+    if (state === 'CREATE') {
+      try {
+        await actionCreateMember(values)
+        toast.success('Member created successfully')
+      } catch (error) {
+        toast.error('Error creating member')
+      }
+    }
+
+    if (state === 'UPDATE' && id) {
+      const { ok, error } = await actionUpdateMember({ id, inputData: values })
+
+      if (!ok && error) {
+        toast.error('Error updating member')
+        return
+      }
+
+      toast.success('Member updated successfully')
+    }
   }
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="mb-5 space-y-8">
@@ -64,13 +103,24 @@ export default function MemberForm() {
         />
         <FormField
           control={form.control}
-          name="membership"
+          name="membershipId"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Membership</FormLabel>
-              <FormControl>
-                <Input type="number" placeholder="700" {...field} />
-              </FormControl>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select membership" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {memberships.map((m, i) => (
+                    <SelectItem key={i} value={m.id.toString()}>
+                      {m.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <FormMessage />
             </FormItem>
           )}
