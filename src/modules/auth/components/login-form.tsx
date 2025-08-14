@@ -103,10 +103,15 @@ export default function LoginForm() {
               </FormItem>
             )}
           />
-          <Button type="submit" className="w-full">
-            Sign In
+          <Button
+            disabled={form.formState.isSubmitting}
+            type="submit"
+            className="w-full"
+          >
+            {form.formState.isSubmitting ? 'Submitting...' : 'Sign In'}
           </Button>
           <Button
+            disabled={form.formState.isSubmitting}
             type="button"
             variant="link"
             className="w-full"

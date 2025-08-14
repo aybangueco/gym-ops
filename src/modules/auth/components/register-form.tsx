@@ -156,10 +156,15 @@ export default function RegisterForm() {
               </FormItem>
             )}
           />
-          <Button type="submit" className="w-full">
-            Sign Up
+          <Button
+            disabled={form.formState.isSubmitting}
+            type="submit"
+            className="w-full"
+          >
+            {form.formState.isSubmitting ? 'Submitting...' : 'Sign Up'}
           </Button>
           <Button
+            disabled={form.formState.isSubmitting}
             type="button"
             variant="link"
             className="w-full"
