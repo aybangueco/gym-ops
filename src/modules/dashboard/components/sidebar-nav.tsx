@@ -12,6 +12,7 @@ import {
   LogOutIcon,
 } from 'lucide-react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { ReactElement, useState } from 'react'
 import { toast } from 'sonner'
 
@@ -35,6 +36,7 @@ const navbarLinks: Array<{ label: string; link: string; icon: ReactElement }> =
   ]
 
 export default function SidebarNav() {
+  const pathName = usePathname()
   const [isExtended, setIsExtended] = useState<boolean>(false)
 
   const onClickLogoutUser = async () => {
@@ -50,7 +52,7 @@ export default function SidebarNav() {
 
   return (
     <aside
-      className={`h-screen border p-3 ${isExtended ? 'w-[250px]' : 'w-[90px]'} bg-secondary relative`}
+      className={`h-screen border p-3 ${isExtended ? 'w-[250px]' : 'w-[90px]'} bg-secondary sticky top-0 left-0`}
     >
       <div className="relative">
         <div className={`flex items-center justify-center gap-2`}>
@@ -75,7 +77,7 @@ export default function SidebarNav() {
           {navbarLinks.map((n, i) => (
             <li key={i}>
               <Link
-                className={`hover:bg-primary hover:text-secondary flex w-full gap-2 rounded-md border p-3 ${isExtended ? '' : 'justify-center'}`}
+                className={`hover:bg-primary hover:text-secondary flex w-full gap-2 rounded-md border p-3 ${isExtended ? '' : 'justify-center'} ${pathName === n.link ? 'bg-primary text-secondary' : ''}`}
                 href={n.link}
               >
                 {n.icon}
