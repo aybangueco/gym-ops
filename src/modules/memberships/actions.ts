@@ -98,15 +98,13 @@ export async function actionCreateMembership(
       }
     }
 
-    await membershipSchema.parseAsync(values)
-
-    const { name, length, cost } = values
+    const validatedData = membershipSchema.parse(values)
 
     await prisma.membership.create({
       data: {
-        name,
-        length: Number(length),
-        cost: Number(cost),
+        ...validatedData,
+        length: Number(validatedData.length),
+        cost: Number(validatedData.cost),
         createdBy: session.user.id,
       },
     })
@@ -145,9 +143,7 @@ export async function actionUpdateMembership({
       }
     }
 
-    await membershipSchema.parseAsync(values)
-
-    const { name, length, cost } = values
+    const validatedData = membershipSchema.parse(values)
 
     const existingMembership = await actionGetMembershipByID(membershipID)
 
@@ -164,9 +160,9 @@ export async function actionUpdateMembership({
 
     await prisma.membership.update({
       data: {
-        name,
-        length: Number(length),
-        cost: Number(cost),
+        ...validatedData,
+        length: Number(validatedData.length),
+        cost: Number(validatedData.cost),
       },
       where: {
         id: existingMembership.data.id,
