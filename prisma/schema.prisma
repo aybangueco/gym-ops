@@ -15,7 +15,7 @@ datasource db {
 }
 
 model User {
-  id            String    @id
+  id            String       @id
   name          String
   email         String
   emailVerified Boolean
@@ -24,6 +24,8 @@ model User {
   updatedAt     DateTime
   sessions      Session[]
   accounts      Account[]
+  Membership    Membership[]
+  Member        Member[]
 
   @@unique([email])
   @@map("user")
@@ -72,4 +74,44 @@ model Verification {
   updatedAt  DateTime?
 
   @@map("verification")
+}
+
+model Membership {
+  id        Int      @id @default(autoincrement())
+  name      String
+  length    Int
+  cost      Int
+  createdBy String
+  user      User     @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Member    Member[]
+
+  @@map("membership")
+}
+
+model Member {
+  id              Int          @id @default(autoincrement())
+  firstName       String
+  lastName        String
+  email           String
+  mobileNumber    String?
+  memberStatus    MemberStatus @default(INACTIVE)
+  membershipId    Int?
+  membership      Membership?  @relation(fields: [membershipId], references: [id], onDelete: Cascade)
+  membershipStart DateTime?    @default(now())
+  membershipEnd   DateTime?    @default(now())
+  createdBy       String
+  user            User         @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  @@map("member")
+}
+
+enum MemberStatus {
+  INACTIVE
+  ACTIVE
+  EXPIRED
+  SUSPENDED
 }
