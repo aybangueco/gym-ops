@@ -52,7 +52,7 @@ export default function SidebarNav() {
 
   return (
     <aside
-      className={`h-screen border p-3 ${isExtended ? 'w-[250px]' : 'w-[90px]'} bg-secondary sticky top-0 left-0`}
+      className={`h-full max-h-screen border p-3 ${isExtended ? 'w-[250px]' : 'w-[90px]'} bg-secondary sticky top-0 left-0 z-50`}
     >
       <div className="relative">
         <div className={`flex items-center justify-center gap-2`}>
