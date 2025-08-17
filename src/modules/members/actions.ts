@@ -1,3 +1,5 @@
+'use server'
+
 import prisma from '@/lib/prisma'
 import { actionGetSession } from '../auth'
 import { MemberResponse, memberSchema, MemberSchema, MembersResponse } from './'
@@ -98,17 +100,44 @@ export async function actionCreateMember(
       Number(validatedData.membershipId)
     )
 
-    if (existingMembership.data === null) {
+    if (
+      validatedData.membershipId !== '' &&
+      validatedData.membershipId !== '0' &&
+      existingMembership.data === null
+    ) {
       return {
         ok: false,
         error: new Error('Invalid membership'),
       }
     }
 
+    const isMembershipEmpty =
+      validatedData.membershipId === '0' || validatedData.membershipId === ''
+
+    const membershipStart = isMembershipEmpty ? null : new Date()
+
+    let membershipEnd: Date | null =
+      membershipStart !== null ? new Date() : null
+
+    if (
+      membershipStart !== null &&
+      membershipEnd !== null &&
+      existingMembership.data
+    ) {
+      membershipEnd.setDate(
+        membershipEnd.getDate() + existingMembership.data.length
+      )
+    }
+
     await prisma.member.create({
       data: {
         ...validatedData,
-        membershipId: existingMembership.data.id,
+        membershipId:
+          validatedData.membershipId === '0'
+            ? null
+            : existingMembership.data?.id,
+        membershipStart,
+        membershipEnd,
         createdBy: session.user.id,
       },
     })
@@ -162,17 +191,47 @@ export async function actionUpdateMember({
       Number(validatedData.membershipId)
     )
 
-    if (existingMembership.ok && existingMember.data === null) {
+    const isMembershipEmpty =
+      validatedData.membershipId === '0' || validatedData.membershipId === ''
+
+    if (!isMembershipEmpty && existingMembership.data === null) {
       return {
         ok: false,
         error: new Error('Invalid membership'),
       }
     }
 
+    const membershipDidNotChange =
+      existingMembership.data?.id === existingMember.data?.membershipId
+
+    let membershipStart: Date | null = null
+    let membershipEnd: Date | null = null
+
+    if (membershipDidNotChange && existingMember.data) {
+      membershipStart = existingMember.data.membershipStart
+      membershipEnd = existingMember.data.membershipEnd
+    }
+
+    if (
+      !membershipDidNotChange &&
+      existingMember.data &&
+      existingMembership.data
+    ) {
+      membershipStart = new Date()
+      membershipEnd = new Date()
+
+      membershipEnd.setDate(
+        membershipEnd.getDate() + existingMembership.data.length
+      )
+    }
+
     await prisma.member.update({
       data: {
         ...validatedData,
-        membershipId: Number(validatedData.membershipId),
+        membershipStart,
+        membershipEnd,
+        membershipId:
+          existingMembership.data !== null ? existingMembership.data.id : null,
       },
       where: {
         id: memberID,
@@ -180,6 +239,8 @@ export async function actionUpdateMember({
         updatedAt: existingMember.data?.updatedAt,
       },
     })
+
+    revalidatePath('/members')
 
     return { ok: true, error: null }
   } catch (error) {
@@ -224,6 +285,8 @@ export async function actionDeleteMember(
         createdBy: session.user.id,
       },
     })
+
+    revalidatePath('/members')
 
     return { ok: true, error: null }
   } catch (error) {
