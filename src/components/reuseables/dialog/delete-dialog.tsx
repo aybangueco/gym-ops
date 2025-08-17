@@ -51,7 +51,13 @@ export default function DeleteDialog({
           >
             Cancel
           </AlertDialogCancel>
-          <AlertDialogAction onClick={deleteFn}>
+          <AlertDialogAction
+            onClick={() => {
+              deleteFn().finally(() => {
+                setIsActive(false)
+              })
+            }}
+          >
             {isPending ? 'Deleting...' : 'Confirm'}
           </AlertDialogAction>
         </AlertDialogFooter>
