@@ -8,7 +8,9 @@ export default function DashboardLayout({
   return (
     <main className="grid grid-cols-[auto_1fr]">
       <SidebarNav />
-      <section className="h-full">{children}</section>
+      <section className="max-h-screen min-h-screen overflow-scroll">
+        {children}
+      </section>
     </main>
   )
 }
