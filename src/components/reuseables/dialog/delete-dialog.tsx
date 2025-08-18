@@ -16,15 +16,14 @@ import { useState } from 'react'
 type DeleteDialogProps = {
   itemName: string
   deleteFn: () => Promise<void>
-  isPending: boolean
 }
 
 export default function DeleteDialog({
   itemName,
   deleteFn,
-  isPending,
 }: DeleteDialogProps) {
   const [isActive, setIsActive] = useState<boolean>(false)
+  const [isDeletePending, setIsDeletePending] = useState<boolean>(false)
 
   return (
     <AlertDialog open={isActive}>
@@ -46,19 +45,21 @@ export default function DeleteDialog({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel
-            disabled={isPending}
+            disabled={isDeletePending}
             onClick={() => setIsActive(false)}
           >
             Cancel
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={() => {
+              setIsDeletePending(true)
               deleteFn().finally(() => {
                 setIsActive(false)
+                setIsDeletePending(false)
               })
             }}
           >
-            {isPending ? 'Deleting...' : 'Confirm'}
+            {isDeletePending ? 'Deleting...' : 'Confirm'}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
