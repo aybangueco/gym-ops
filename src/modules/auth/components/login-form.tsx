@@ -117,7 +117,7 @@ export default function LoginForm() {
             className="w-full"
             onClick={() => router.push('/register')}
           >
-            Don't have account yet? Register here.
+            Don&apos;t have account yet? Register here.
           </Button>
         </form>
       </Form>

@@ -12,9 +12,14 @@ import { useMemberDataContext } from './member-data-provider'
 import UpdateDialogForm from '@/components/reuseables/dialog/update-dialog-form'
 import MemberForm from './member-form'
 import DeleteDialog from '@/components/reuseables/dialog/delete-dialog'
-import { useState } from 'react'
 import { actionDeleteMember } from '..'
 import { toast } from 'sonner'
+
+function MembershipCell({ membershipId }: { membershipId: string }) {
+  const { memberships } = useMemberDataContext()
+  const membership = memberships.find((m) => m.id === Number(membershipId))
+  return <p>{membership?.name ?? 'N/A'}</p>
+}
 
 const MemberColumns: ColumnDef<Member>[] = [
   {
@@ -45,17 +50,9 @@ const MemberColumns: ColumnDef<Member>[] = [
   {
     accessorKey: 'membershipId',
     header: 'Membership',
-    cell: ({ row }) => {
-      const { memberships } = useMemberDataContext()
-
-      return (
-        <p>
-          {memberships.find(
-            (membership) => membership.id === row.getValue('membershipId')
-          )?.name ?? 'N/A'}
-        </p>
-      )
-    },
+    cell: ({ row }) => (
+      <MembershipCell membershipId={row.getValue('membershipId')} />
+    ),
   },
   {
     accessorKey: 'memberStatus',
@@ -97,20 +94,16 @@ const MemberColumns: ColumnDef<Member>[] = [
     id: 'actions',
     cell: ({ row }) => {
       const member = row.original
-      const [deleteIsPending, setDeleteIsPending] = useState<boolean>(false)
 
       const deleteMember = async () => {
-        setDeleteIsPending(true)
         const { ok, error } = await actionDeleteMember(member.id)
 
         if (!ok && error !== null) {
           toast.error(error.message)
-          setDeleteIsPending(false)
           return
         }
 
         toast.success('Member deleted successfully')
-        setDeleteIsPending(false)
       }
 
       return (
@@ -140,7 +133,6 @@ const MemberColumns: ColumnDef<Member>[] = [
               <DeleteDialog
                 itemName={member.firstName}
                 deleteFn={deleteMember}
-                isPending={deleteIsPending}
               />
             </DropdownMenuItem>
           </DropdownMenuContent>

@@ -116,7 +116,7 @@ export async function actionCreateMember(
 
     const membershipStart = isMembershipEmpty ? null : new Date()
 
-    let membershipEnd: Date | null =
+    const membershipEnd: Date | null =
       membershipStart !== null ? new Date() : null
 
     if (
