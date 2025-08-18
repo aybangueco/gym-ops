@@ -7,6 +7,7 @@ import { ActionState } from '../types'
 import { revalidatePath } from 'next/cache'
 import { actionGetMembershipByID } from '../memberships'
 import { Member } from '@/generated/prisma'
+import { handleActionStateError } from '@/lib/errors'
 
 export async function actionGetMembers(): Promise<ActionState<Member[]>> {
   try {
@@ -31,17 +32,7 @@ export async function actionGetMembers(): Promise<ActionState<Member[]>> {
 
     return { data: members, ok: true, error: null }
   } catch (error) {
-    console.error(error)
-
-    if (error instanceof Error) {
-      return { data: null, ok: false, error }
-    }
-
-    return {
-      data: null,
-      ok: false,
-      error: new Error('Unknown error occured'),
-    }
+    return handleActionStateError(error)
   }
 }
 
@@ -68,17 +59,7 @@ export async function actionGetMemberByID(
 
     return { data: member, ok: true, error: null }
   } catch (error) {
-    console.error(error)
-
-    if (error instanceof Error) {
-      return { data: null, ok: false, error }
-    }
-
-    return {
-      data: null,
-      ok: false,
-      error: new Error('Unknown error occured'),
-    }
+    return handleActionStateError(error)
   }
 }
 
@@ -145,17 +126,7 @@ export async function actionCreateMember(
 
     return { data: createdMember, ok: true, error: null }
   } catch (error) {
-    console.error(error)
-
-    if (error instanceof Error) {
-      return { data: null, ok: false, error }
-    }
-
-    return {
-      data: null,
-      ok: false,
-      error: new Error('Unknown error occured'),
-    }
+    return handleActionStateError(error)
   }
 }
 
@@ -247,17 +218,7 @@ export async function actionUpdateMember({
 
     return { data: updatedMember, ok: true, error: null }
   } catch (error) {
-    console.error(error)
-
-    if (error instanceof Error) {
-      return { data: null, ok: false, error }
-    }
-
-    return {
-      data: null,
-      ok: false,
-      error: new Error('Unknown error occured'),
-    }
+    return handleActionStateError(error)
   }
 }
 
@@ -296,16 +257,6 @@ export async function actionDeleteMember(
 
     return { data: true, ok: true, error: null }
   } catch (error) {
-    console.error(error)
-
-    if (error instanceof Error) {
-      return { data: null, ok: false, error }
-    }
-
-    return {
-      data: null,
-      ok: false,
-      error: new Error('Unknown error occured'),
-    }
+    return handleActionStateError(error)
   }
 }

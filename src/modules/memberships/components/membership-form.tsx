@@ -45,7 +45,7 @@ export default function MembershipForm({
       const { ok, error } = await actionCreateMembership(values)
 
       if (!ok && error != null) {
-        toast.error('Error creating membership')
+        toast.error(error.message)
         return
       }
 
