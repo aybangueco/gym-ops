@@ -2,18 +2,19 @@
 
 import prisma from '@/lib/prisma'
 import { actionGetSession } from '../auth'
-import { MemberResponse, memberSchema, MemberSchema, MembersResponse } from './'
+import { memberSchema, MemberSchema } from './'
 import { ActionState } from '../types'
 import { revalidatePath } from 'next/cache'
 import { actionGetMembershipByID } from '../memberships'
+import { Member } from '@/generated/prisma'
 
-export async function actionGetMembers(): Promise<MembersResponse> {
+export async function actionGetMembers(): Promise<ActionState<Member[]>> {
   try {
     const session = await actionGetSession()
 
     if (!session) {
       return {
-        data: [],
+        data: null,
         ok: false,
         error: new Error('Invalid user session'),
       }
@@ -33,11 +34,11 @@ export async function actionGetMembers(): Promise<MembersResponse> {
     console.error(error)
 
     if (error instanceof Error) {
-      return { data: [], ok: false, error }
+      return { data: null, ok: false, error }
     }
 
     return {
-      data: [],
+      data: null,
       ok: false,
       error: new Error('Unknown error occured'),
     }
@@ -46,7 +47,7 @@ export async function actionGetMembers(): Promise<MembersResponse> {
 
 export async function actionGetMemberByID(
   memberID: number
-): Promise<MemberResponse> {
+): Promise<ActionState<Member | null>> {
   try {
     const session = await actionGetSession()
 
@@ -83,12 +84,13 @@ export async function actionGetMemberByID(
 
 export async function actionCreateMember(
   values: MemberSchema
-): Promise<ActionState> {
+): Promise<ActionState<Member>> {
   try {
     const session = await actionGetSession()
 
     if (!session) {
       return {
+        data: null,
         ok: false,
         error: new Error('Invalid user session'),
       }
@@ -100,19 +102,16 @@ export async function actionCreateMember(
       Number(validatedData.membershipId)
     )
 
-    if (
-      validatedData.membershipId !== '' &&
-      validatedData.membershipId !== '0' &&
-      existingMembership.data === null
-    ) {
+    const isMembershipEmpty =
+      validatedData.membershipId === '0' || validatedData.membershipId === ''
+
+    if (!isMembershipEmpty && existingMembership.data === null) {
       return {
+        data: null,
         ok: false,
         error: new Error('Invalid membership'),
       }
     }
-
-    const isMembershipEmpty =
-      validatedData.membershipId === '0' || validatedData.membershipId === ''
 
     const membershipStart = isMembershipEmpty ? null : new Date()
 
@@ -129,7 +128,7 @@ export async function actionCreateMember(
       )
     }
 
-    await prisma.member.create({
+    const createdMember = await prisma.member.create({
       data: {
         ...validatedData,
         membershipId:
@@ -144,15 +143,16 @@ export async function actionCreateMember(
 
     revalidatePath('/members')
 
-    return { ok: true, error: null }
+    return { data: createdMember, ok: true, error: null }
   } catch (error) {
     console.error(error)
 
     if (error instanceof Error) {
-      return { ok: false, error }
+      return { data: null, ok: false, error }
     }
 
     return {
+      data: null,
       ok: false,
       error: new Error('Unknown error occured'),
     }
@@ -165,12 +165,13 @@ export async function actionUpdateMember({
 }: {
   memberID: number
   values: MemberSchema
-}): Promise<ActionState> {
+}): Promise<ActionState<Member>> {
   try {
     const session = await actionGetSession()
 
     if (!session) {
       return {
+        data: null,
         ok: false,
         error: new Error('Invalid user session'),
       }
@@ -182,6 +183,7 @@ export async function actionUpdateMember({
 
     if (existingMember.ok && existingMember.data === null) {
       return {
+        data: null,
         ok: false,
         error: new Error('Invalid member'),
       }
@@ -196,6 +198,7 @@ export async function actionUpdateMember({
 
     if (!isMembershipEmpty && existingMembership.data === null) {
       return {
+        data: null,
         ok: false,
         error: new Error('Invalid membership'),
       }
@@ -225,7 +228,7 @@ export async function actionUpdateMember({
       )
     }
 
-    await prisma.member.update({
+    const updatedMember = await prisma.member.update({
       data: {
         ...validatedData,
         membershipStart,
@@ -242,15 +245,16 @@ export async function actionUpdateMember({
 
     revalidatePath('/members')
 
-    return { ok: true, error: null }
+    return { data: updatedMember, ok: true, error: null }
   } catch (error) {
     console.error(error)
 
     if (error instanceof Error) {
-      return { ok: false, error }
+      return { data: null, ok: false, error }
     }
 
     return {
+      data: null,
       ok: false,
       error: new Error('Unknown error occured'),
     }
@@ -259,12 +263,13 @@ export async function actionUpdateMember({
 
 export async function actionDeleteMember(
   memberID: number
-): Promise<ActionState> {
+): Promise<ActionState<boolean>> {
   try {
     const session = await actionGetSession()
 
     if (!session) {
       return {
+        data: null,
         ok: false,
         error: new Error('Invalid user session'),
       }
@@ -274,6 +279,7 @@ export async function actionDeleteMember(
 
     if (existingMember.ok && existingMember.data === null) {
       return {
+        data: null,
         ok: false,
         error: new Error('Invalid member'),
       }
@@ -288,15 +294,16 @@ export async function actionDeleteMember(
 
     revalidatePath('/members')
 
-    return { ok: true, error: null }
+    return { data: true, ok: true, error: null }
   } catch (error) {
     console.error(error)
 
     if (error instanceof Error) {
-      return { ok: false, error }
+      return { data: null, ok: false, error }
     }
 
     return {
+      data: null,
       ok: false,
       error: new Error('Unknown error occured'),
     }

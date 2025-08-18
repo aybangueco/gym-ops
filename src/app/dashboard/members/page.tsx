@@ -1,5 +1,6 @@
 import PageLoading from '@/components/reuseables/loading/page-loading'
 import { DataTable } from '@/components/ui/data-table'
+import { actionGetSession } from '@/modules/auth'
 import {
   actionGetMembers,
   MemberColumns,
@@ -7,15 +8,22 @@ import {
   MemberForm,
 } from '@/modules/members'
 import { actionGetMemberships } from '@/modules/memberships'
+import { redirect } from 'next/navigation'
 import { Suspense } from 'react'
 
 async function MembersInner() {
+  const session = await actionGetSession()
+
+  if (!session) {
+    redirect('/login')
+  }
+
   const memberships = await actionGetMemberships()
   const members = await actionGetMembers()
 
   return (
     <div className="p-3">
-      <MemberDataProvider memberships={memberships.data}>
+      <MemberDataProvider memberships={memberships.data ?? []}>
         <header className="flex flex-col items-center justify-center">
           <h1 className="text-4xl font-bold">Manage Members</h1>
           <p className="">Manage members information</p>

@@ -2,22 +2,20 @@
 
 import prisma from '@/lib/prisma'
 import { actionGetSession } from '../auth'
-import {
-  MembershipResponse,
-  membershipSchema,
-  MembershipSchema,
-  MembershipsResponse,
-} from './'
+import { membershipSchema, MembershipSchema } from './'
 import { revalidatePath } from 'next/cache'
 import { ActionState } from '../types'
+import { Membership } from '@/generated/prisma'
 
-export async function actionGetMemberships(): Promise<MembershipsResponse> {
+export async function actionGetMemberships(): Promise<
+  ActionState<Membership[]>
+> {
   try {
     const session = await actionGetSession()
 
     if (!session) {
       return {
-        data: [],
+        data: null,
         ok: false,
         error: new Error('Invalid user session'),
       }
@@ -37,11 +35,11 @@ export async function actionGetMemberships(): Promise<MembershipsResponse> {
     console.error(error)
 
     if (error instanceof Error) {
-      return { data: [], ok: false, error }
+      return { data: null, ok: false, error }
     }
 
     return {
-      data: [],
+      data: null,
       ok: false,
       error: new Error('Unknown error occured'),
     }
@@ -50,7 +48,7 @@ export async function actionGetMemberships(): Promise<MembershipsResponse> {
 
 export async function actionGetMembershipByID(
   membershipID: number
-): Promise<MembershipResponse> {
+): Promise<ActionState<Membership | null>> {
   try {
     const session = await actionGetSession()
 
@@ -87,12 +85,13 @@ export async function actionGetMembershipByID(
 
 export async function actionCreateMembership(
   values: MembershipSchema
-): Promise<ActionState> {
+): Promise<ActionState<Membership>> {
   try {
     const session = await actionGetSession()
 
     if (!session) {
       return {
+        data: null,
         ok: false,
         error: new Error('Invalid user session'),
       }
@@ -100,7 +99,7 @@ export async function actionCreateMembership(
 
     const validatedData = membershipSchema.parse(values)
 
-    await prisma.membership.create({
+    const createdMembership = await prisma.membership.create({
       data: {
         ...validatedData,
         length: Number(validatedData.length),
@@ -111,15 +110,16 @@ export async function actionCreateMembership(
 
     revalidatePath('/memberships')
 
-    return { ok: true, error: null }
+    return { data: createdMembership, ok: true, error: null }
   } catch (error) {
     console.error(error)
 
     if (error instanceof Error) {
-      return { ok: false, error }
+      return { data: null, ok: false, error }
     }
 
     return {
+      data: null,
       ok: false,
       error: new Error('Unknown error occured'),
     }
@@ -132,12 +132,13 @@ export async function actionUpdateMembership({
 }: {
   membershipID: number
   values: MembershipSchema
-}): Promise<ActionState> {
+}): Promise<ActionState<Membership>> {
   try {
     const session = await actionGetSession()
 
     if (!session) {
       return {
+        data: null,
         ok: false,
         error: new Error('Invalid user session'),
       }
@@ -148,17 +149,18 @@ export async function actionUpdateMembership({
     const existingMembership = await actionGetMembershipByID(membershipID)
 
     if (!existingMembership.ok && existingMembership.error !== null) {
-      return { ok: false, error: existingMembership.error }
+      return { data: null, ok: false, error: existingMembership.error }
     }
 
     if (existingMembership.data === null) {
       return {
+        data: null,
         ok: false,
         error: new Error('Invalid membership'),
       }
     }
 
-    await prisma.membership.update({
+    const updatedMember = await prisma.membership.update({
       data: {
         ...validatedData,
         length: Number(validatedData.length),
@@ -173,15 +175,16 @@ export async function actionUpdateMembership({
 
     revalidatePath('/memberships')
 
-    return { ok: true, error: null }
+    return { data: updatedMember, ok: true, error: null }
   } catch (error) {
     console.error(error)
 
     if (error instanceof Error) {
-      return { ok: false, error }
+      return { data: null, ok: false, error }
     }
 
     return {
+      data: null,
       ok: false,
       error: new Error('Unknown error occured'),
     }
@@ -190,12 +193,13 @@ export async function actionUpdateMembership({
 
 export async function actionDeleteMembership(
   membershipID: number
-): Promise<ActionState> {
+): Promise<ActionState<boolean>> {
   try {
     const session = await actionGetSession()
 
     if (!session) {
       return {
+        data: null,
         ok: false,
         error: new Error('Invalid user session'),
       }
@@ -204,11 +208,12 @@ export async function actionDeleteMembership(
     const existingMembership = await actionGetMembershipByID(membershipID)
 
     if (!existingMembership.ok && existingMembership.error !== null) {
-      return { ok: false, error: existingMembership.error }
+      return { data: null, ok: false, error: existingMembership.error }
     }
 
     if (existingMembership.data === null) {
       return {
+        data: null,
         ok: false,
         error: new Error('Invalid membership'),
       }
@@ -223,15 +228,16 @@ export async function actionDeleteMembership(
 
     revalidatePath('/memberships')
 
-    return { ok: false, error: null }
+    return { data: true, ok: true, error: null }
   } catch (error) {
     console.error(error)
 
     if (error instanceof Error) {
-      return { ok: false, error }
+      return { data: null, ok: false, error }
     }
 
     return {
+      data: null,
       ok: false,
       error: new Error('Unknown error occured'),
     }
