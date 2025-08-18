@@ -14,6 +14,7 @@ permissions:
 
 jobs:
   build:
+    name: Audit
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -32,6 +33,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install
       - name: ESLint Check
-        run: pnpx run lint
+        run: pnpm run lint
       - name: Prettier Check
-        run: pnpx run prettier:check
+        run: pnpm run prettier:check
