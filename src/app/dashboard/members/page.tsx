@@ -1,3 +1,4 @@
+import PageLoading from '@/components/reuseables/loading/page-loading'
 import { DataTable } from '@/components/ui/data-table'
 import {
   actionGetMembers,
@@ -6,8 +7,9 @@ import {
   MemberForm,
 } from '@/modules/members'
 import { actionGetMemberships } from '@/modules/memberships'
+import { Suspense } from 'react'
 
-export default async function MembersPage() {
+async function MembersInner() {
   const memberships = await actionGetMemberships()
   const members = await actionGetMembers()
 
@@ -28,5 +30,13 @@ export default async function MembersPage() {
         </section>
       </MemberDataProvider>
     </div>
+  )
+}
+
+export default function MembersPage() {
+  return (
+    <Suspense fallback={<PageLoading />}>
+      <MembersInner />
+    </Suspense>
   )
 }

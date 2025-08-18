@@ -1,3 +1,4 @@
+import PageLoading from '@/components/reuseables/loading/page-loading'
 import { actionGetSession } from '@/modules/auth'
 import {
   actionGetMemberships,
@@ -6,12 +7,13 @@ import {
 } from '@/modules/memberships'
 import { Metadata } from 'next'
 import { redirect } from 'next/navigation'
+import { Suspense } from 'react'
 
 export const metadata: Metadata = {
   title: 'Gym Ops | Memberships',
 }
 
-export default async function MembershipsPage() {
+async function MembershipsInner() {
   const session = await actionGetSession()
 
   if (!session) {
@@ -35,5 +37,13 @@ export default async function MembershipsPage() {
         <MembershipList memberships={memberships} />
       </section>
     </div>
+  )
+}
+
+export default function MembershipsPage() {
+  return (
+    <Suspense fallback={<PageLoading />}>
+      <MembershipsInner />
+    </Suspense>
   )
 }
