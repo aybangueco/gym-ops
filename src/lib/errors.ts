@@ -5,6 +5,7 @@ export const Errors = {
   InvalidSession: () => new Error('Invalid user session'),
   MemberNotFound: () => new Error('Member not found'),
   MembershipNotFound: () => new Error('Membership not found'),
+  MemberCurrentlyActive: () => new Error('Member is currently active'),
 }
 
 // Error helpers
