@@ -10,6 +10,7 @@ import {
   DumbbellIcon,
   HomeIcon,
   LogOutIcon,
+  Logs,
 } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -32,6 +33,11 @@ const navbarLinks: Array<{ label: string; link: string; icon: ReactElement }> =
       label: 'Memberships',
       link: '/dashboard/memberships',
       icon: <Book />,
+    },
+    {
+      label: 'Attendance',
+      link: '/dashboard/attendance',
+      icon: <Logs />,
     },
   ]
 
