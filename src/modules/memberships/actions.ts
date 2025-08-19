@@ -6,7 +6,7 @@ import { membershipSchema, MembershipSchema } from './'
 import { revalidatePath } from 'next/cache'
 import { ActionState } from '../types'
 import { Membership } from '@/generated/prisma'
-import { handleActionStateError } from '@/lib/errors'
+import { Errors, handleActionStateError } from '@/lib/errors'
 
 export async function actionGetMemberships(): Promise<
   ActionState<Membership[]>
@@ -15,11 +15,7 @@ export async function actionGetMemberships(): Promise<
     const session = await actionGetSession()
 
     if (!session) {
-      return {
-        data: null,
-        ok: false,
-        error: new Error('Invalid user session'),
-      }
+      throw Errors.InvalidSession()
     }
 
     const memberships = await prisma.membership.findMany({
@@ -44,11 +40,7 @@ export async function actionGetMembershipByID(
     const session = await actionGetSession()
 
     if (!session) {
-      return {
-        data: null,
-        ok: false,
-        error: new Error('Invalid user session'),
-      }
+      throw Errors.InvalidSession()
     }
 
     const membership = await prisma.membership.findUnique({
@@ -71,11 +63,7 @@ export async function actionCreateMembership(
     const session = await actionGetSession()
 
     if (!session) {
-      return {
-        data: null,
-        ok: false,
-        error: new Error('Invalid user session'),
-      }
+      throw Errors.InvalidSession()
     }
 
     const validatedData = membershipSchema.parse(values)
@@ -108,27 +96,15 @@ export async function actionUpdateMembership({
     const session = await actionGetSession()
 
     if (!session) {
-      return {
-        data: null,
-        ok: false,
-        error: new Error('Invalid user session'),
-      }
+      throw Errors.InvalidSession()
     }
 
     const validatedData = membershipSchema.parse(values)
 
     const existingMembership = await actionGetMembershipByID(membershipID)
 
-    if (!existingMembership.ok && existingMembership.error !== null) {
-      return { data: null, ok: false, error: existingMembership.error }
-    }
-
     if (existingMembership.data === null) {
-      return {
-        data: null,
-        ok: false,
-        error: new Error('Invalid membership'),
-      }
+      throw Errors.MembershipNotFound()
     }
 
     const updatedMember = await prisma.membership.update({
@@ -159,30 +135,18 @@ export async function actionDeleteMembership(
     const session = await actionGetSession()
 
     if (!session) {
-      return {
-        data: null,
-        ok: false,
-        error: new Error('Invalid user session'),
-      }
+      throw Errors.InvalidSession()
     }
 
     const existingMembership = await actionGetMembershipByID(membershipID)
 
-    if (!existingMembership.ok && existingMembership.error !== null) {
-      return { data: null, ok: false, error: existingMembership.error }
-    }
-
-    if (existingMembership.data === null) {
-      return {
-        data: null,
-        ok: false,
-        error: new Error('Invalid membership'),
-      }
+    if (existingMembership.ok && existingMembership.data === null) {
+      throw Errors.MembershipNotFound()
     }
 
     await prisma.membership.delete({
       where: {
-        id: membershipID,
+        id: existingMembership.data?.id,
         createdBy: session.user.id,
       },
     })
