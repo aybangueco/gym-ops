@@ -49,7 +49,7 @@ export default function MemberForm({
       lastName: data?.lastName ?? '',
       email: data?.email ?? '',
       mobileNumber: data?.mobileNumber ?? '',
-      membershipId: data?.membershipId ?? '',
+      membershipId: data?.membershipId ?? '0',
       memberStatus: data?.memberStatus ?? 'INACTIVE',
     },
   })
@@ -152,10 +152,7 @@ export default function MemberForm({
               <FormItem>
                 <FormLabel>Membership</FormLabel>
                 <FormControl>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select member status" />
                     </SelectTrigger>

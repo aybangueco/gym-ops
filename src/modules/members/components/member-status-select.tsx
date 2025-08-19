@@ -22,7 +22,7 @@ export default function MemberStatusSelect({ field }: MemberStatusProps) {
   ]
 
   return (
-    <Select onValueChange={field.onChange} defaultValue={field.value}>
+    <Select onValueChange={field.onChange} value={field.value}>
       <SelectTrigger className="w-[180px]">
         <SelectValue placeholder="Select member status" />
       </SelectTrigger>
