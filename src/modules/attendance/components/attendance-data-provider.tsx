@@ -1,13 +1,13 @@
 'use client'
 
-import { AttendanceLog, Member } from '@/generated/prisma'
+import { Member } from '@/generated/prisma'
 import { createContext, ReactNode, useContext } from 'react'
-import { AttendanceWithMember } from '../types'
+import { AttendanceLogsWithAttendance, AttendanceWithMember } from '../types'
 
 type AttendanceDataContextProps = {
   members: Member[]
   attendances: AttendanceWithMember[]
-  attendanceLogs: AttendanceLog[]
+  attendanceLogs: AttendanceLogsWithAttendance[]
 }
 
 const AttendanceDataContext = createContext<AttendanceDataContextProps | null>(
