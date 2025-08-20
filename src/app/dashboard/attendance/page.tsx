@@ -1,15 +1,20 @@
 import PageLoading from '@/components/reuseables/loading/page-loading'
 import {
+  actionGetAttendanceLogs,
   actionGetAttendances,
   AttendanceDataProvider,
-  ManualAttendanceForm,
 } from '@/modules/attendance'
 import AttendanceLogs from '@/modules/attendance/components/attendance-logs'
 import AttendanceTabsTableList from '@/modules/attendance/components/attendance-tabs-table-list'
 import { actionGetSession } from '@/modules/auth'
 import { actionGetMembers } from '@/modules/members'
+import { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { Suspense } from 'react'
+
+export const metadata: Metadata = {
+  title: 'Gym Ops | Attendance',
+}
 
 async function AttendanceInner() {
   const session = actionGetSession()
@@ -20,13 +25,14 @@ async function AttendanceInner() {
 
   const members = await actionGetMembers()
   const attendances = await actionGetAttendances()
+  const attendanceLogs = await actionGetAttendanceLogs()
 
   return (
     <div className="p-3">
       <AttendanceDataProvider
         members={members.data?.filter((m) => m.memberStatus === 'ACTIVE') ?? []}
         attendances={attendances.data ?? []}
-        attendanceLogs={[]}
+        attendanceLogs={attendanceLogs.data ?? []}
       >
         <header className="flex flex-col items-center justify-center">
           <h1 className="text-4xl font-bold">Manage Attendance</h1>
@@ -36,13 +42,11 @@ async function AttendanceInner() {
           </p>
         </header>
 
-        <section className="mt-10 flex items-center justify-center p-3">
-          <ManualAttendanceForm />
-        </section>
-
         <section className="mt-10 p-3">
           <div className="bg-card rounded-lg border p-3">
-            <h1 className="mb-5 text-2xl font-bold">User management</h1>
+            <h1 className="mb-5 text-2xl font-bold">
+              Attendance Session Management
+            </h1>
             <AttendanceTabsTableList />
           </div>
         </section>
