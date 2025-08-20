@@ -2,13 +2,21 @@
 
 import { Attendance } from '@/generated/prisma'
 import { ActionState } from '../types'
-import { attendanceSchema, AttendanceSchema, AttendanceWithMember } from './'
+import {
+  AttendanceLogSchema,
+  attendanceLogSchema,
+  AttendanceLogsWithAttendance,
+  attendanceSchema,
+  AttendanceSchema,
+  AttendanceWithMember,
+} from './'
 import { actionGetSession } from '../auth'
 import prisma from '@/lib/prisma'
 import { Errors, handleActionStateError } from '@/lib/errors'
 import { actionGetMemberByID } from '../members'
 import { revalidatePath } from 'next/cache'
 
+// Attendance server actions
 export async function actionGetAttendances(): Promise<
   ActionState<AttendanceWithMember[]>
 > {
@@ -123,7 +131,7 @@ export async function actionUpdateMemberAttendance({
       lastActive = new Date()
     }
 
-    await prisma.attendance.update({
+    const createdAttendance = await prisma.attendance.update({
       data: {
         activeSession,
         lastActive,
@@ -133,9 +141,70 @@ export async function actionUpdateMemberAttendance({
       },
     })
 
+    await actionCreateAttendanceLog({
+      attendanceId: createdAttendance.id,
+      attendanceType: activeSession ? 'SESSION_STARTED' : 'SESSION_ENDED',
+    })
+
     revalidatePath('/attendance')
 
     return { data: true, ok: true, error: null }
+  } catch (error) {
+    return handleActionStateError(error)
+  }
+}
+
+// Attendance logs server actions
+export async function actionGetAttendanceLogs(): Promise<
+  ActionState<AttendanceLogsWithAttendance[]>
+> {
+  try {
+    const session = await actionGetSession()
+
+    if (!session) {
+      throw Errors.InvalidSession()
+    }
+
+    const attendanceLogs = await prisma.attendanceLog.findMany({
+      where: {
+        createdBy: session.user.id,
+      },
+      orderBy: {
+        id: 'desc',
+      },
+      include: {
+        attendance: true,
+      },
+    })
+
+    return { data: attendanceLogs, ok: true, error: null }
+  } catch (error) {
+    return handleActionStateError(error)
+  }
+}
+
+export async function actionCreateAttendanceLog(
+  values: AttendanceLogSchema
+): Promise<ActionState<null>> {
+  try {
+    const session = await actionGetSession()
+
+    if (!session) {
+      throw Errors.InvalidSession()
+    }
+
+    const validatedData = attendanceLogSchema.parse(values)
+
+    await prisma.attendanceLog.create({
+      data: {
+        ...validatedData,
+        createdBy: session.user.id,
+      },
+    })
+
+    revalidatePath('/attendance')
+
+    return { data: null, ok: true, error: null }
   } catch (error) {
     return handleActionStateError(error)
   }
