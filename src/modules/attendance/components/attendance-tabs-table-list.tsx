@@ -10,7 +10,7 @@ export default function AttendanceTabsTableList() {
 
   return (
     <Tabs defaultValue="active" className="w-full">
-      <TabsList>
+      <TabsList className="w-full">
         <TabsTrigger value="active">
           Active Sessions (
           {

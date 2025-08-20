@@ -126,6 +126,7 @@ const AttendanceColumns: ColumnDef<AttendanceWithMember>[] = [
                 </AlertDialogContent>
               </AlertDialog>
             </DropdownMenuItem>
+            <DropdownMenuItem>Generate QR Code Attendance</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       )
