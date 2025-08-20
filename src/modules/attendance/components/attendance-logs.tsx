@@ -1,72 +1,88 @@
 'use client'
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
-import { AttendanceType } from '@/generated/prisma'
+import { useAttendanceDataContext } from './attendance-data-provider'
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import AttendanceLogContent from './attendance-log-content'
 
-interface AttendanceLog {
-  id: number
-  memberName: string
-  type: AttendanceType
-  timestamp: string
+function isToday(date: Date) {
+  const today = new Date()
+  return (
+    date.getDate() === today.getDate() &&
+    date.getMonth() === today.getMonth() &&
+    date.getFullYear() === today.getFullYear()
+  )
 }
 
-const logs: AttendanceLog[] = [
-  {
-    id: 1,
-    memberName: 'John Doe',
-    type: 'SESSION_STARTED',
-    timestamp: '2025-08-19T09:30:00',
-  },
-  {
-    id: 2,
-    memberName: 'John Doe',
-    type: 'SESSION_ENDED',
-    timestamp: '2025-08-19T11:45:00',
-  },
-  {
-    id: 3,
-    memberName: 'Jane Smith',
-    type: 'SESSION_STARTED',
-    timestamp: '2025-08-19T14:00:00',
-  },
-]
+function isThisWeek(date: Date) {
+  const now = new Date()
+  const firstDay = new Date(now)
+  firstDay.setDate(now.getDate() - now.getDay())
+  firstDay.setHours(0, 0, 0, 0)
+
+  const lastDay = new Date(firstDay)
+  lastDay.setDate(firstDay.getDate() + 6)
+  lastDay.setHours(23, 59, 59, 999)
+
+  return date >= firstDay && date <= lastDay
+}
+
+function isThisMonth(date: Date) {
+  const now = new Date()
+  return (
+    date.getMonth() === now.getMonth() &&
+    date.getFullYear() === now.getFullYear()
+  )
+}
 
 export default function AttendanceLogs() {
+  const { attendanceLogs, members } = useAttendanceDataContext()
+
   return (
-    <div className="p-6">
-      <h1 className="mb-6 text-2xl font-bold">Attendance Logs</h1>
-      <div className="space-y-4">
-        {logs.map((log) => {
-          return (
-            <Card key={log.id} className="shadow-md">
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>{log.memberName}</CardTitle>
-                <Badge
-                  variant={
-                    log.type === 'SESSION_STARTED' ? 'default' : 'secondary'
-                  }
-                >
-                  {log.type === 'SESSION_STARTED' ? 'Started' : 'Ended'}
-                </Badge>
-              </CardHeader>
-              <Separator />
-              <CardContent className="pt-4">
-                {log.type === 'SESSION_STARTED' ? (
-                  <p className="font-medium text-green-600">
-                    ✅ {log.memberName} has started session at
-                  </p>
-                ) : (
-                  <p className="font-medium text-red-600">
-                    🛑 {log.memberName} has ended session at
-                  </p>
-                )}
-              </CardContent>
-            </Card>
-          )
-        })}
-      </div>
-    </div>
+    <Card className="rounded-xl shadow-sm">
+      <CardHeader>
+        <CardTitle className="text-2xl font-bold">Attendance Logs</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <Tabs defaultValue="today" className="w-full">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="all">All</TabsTrigger>
+            <TabsTrigger value="today">Today</TabsTrigger>
+            <TabsTrigger value="this-week">This Week</TabsTrigger>
+            <TabsTrigger value="this-month">This Month</TabsTrigger>
+          </TabsList>
+          <TabsContent value="all">
+            <AttendanceLogContent
+              attendanceLogs={attendanceLogs}
+              members={members}
+            />
+          </TabsContent>
+          <TabsContent value="today">
+            <AttendanceLogContent
+              attendanceLogs={attendanceLogs.filter((log) =>
+                isToday(new Date(log.createdAt))
+              )}
+              members={members}
+            />
+          </TabsContent>
+          <TabsContent value="this-week">
+            <AttendanceLogContent
+              attendanceLogs={attendanceLogs.filter((log) =>
+                isThisWeek(new Date(log.createdAt))
+              )}
+              members={members}
+            />
+          </TabsContent>
+          <TabsContent value="this-month">
+            <AttendanceLogContent
+              attendanceLogs={attendanceLogs.filter((log) =>
+                isThisMonth(new Date(log.createdAt))
+              )}
+              members={members}
+            />
+          </TabsContent>
+        </Tabs>
+      </CardContent>
+    </Card>
   )
 }
