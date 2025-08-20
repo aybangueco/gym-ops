@@ -15,7 +15,7 @@ datasource db {
 }
 
 model User {
-  id            String       @id
+  id            String          @id
   name          String
   email         String
   emailVerified Boolean
@@ -26,6 +26,8 @@ model User {
   accounts      Account[]
   Membership    Membership[]
   Member        Member[]
+  attendance    Attendance[]
+  attendanceLog AttendanceLog[]
 
   @@unique([email])
   @@map("user")
@@ -105,6 +107,7 @@ model Member {
   user            User         @relation(fields: [createdBy], references: [id], onDelete: Cascade)
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
+  attendance      Attendance?
 
   @@map("member")
 }
@@ -114,4 +117,37 @@ enum MemberStatus {
   ACTIVE
   EXPIRED
   SUSPENDED
+}
+
+model Attendance {
+  id            Int             @id @default(autoincrement())
+  memberId      Int             @unique
+  member        Member          @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  activeSession Boolean         @default(false)
+  lastActive    DateTime?
+  createdBy     String
+  user          User            @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  attendanceLog AttendanceLog[]
+
+  @@map("attendance")
+}
+
+model AttendanceLog {
+  id             Int            @id @default(autoincrement())
+  attendanceId   Int
+  attendance     Attendance     @relation(fields: [attendanceId], references: [id], onDelete: Cascade)
+  attendanceType AttendanceType
+  createdBy      String
+  user           User           @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  @@map("attendance_log")
+}
+
+enum AttendanceType {
+  SESSION_STARTED
+  SESSION_ENDED
 }
