@@ -22,7 +22,7 @@ export default function UpdateDialogForm({
   return (
     <Dialog>
       <DialogTrigger className="w-full text-start">Edit</DialogTrigger>
-      <DialogContent>
+      <DialogContent onKeyDown={(e) => e.stopPropagation()}>
         <DialogHeader>
           <DialogTitle className="text-center">{title}</DialogTitle>
           <DialogDescription className="mb-5 text-center">
