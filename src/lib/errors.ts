@@ -6,6 +6,7 @@ export const Errors = {
   MemberNotFound: () => new Error('Member not found'),
   MembershipNotFound: () => new Error('Membership not found'),
   MemberCurrentlyActive: () => new Error('Member is currently active'),
+  ItemNotFound: () => new Error('Item not found'),
 }
 
 // Error helpers
