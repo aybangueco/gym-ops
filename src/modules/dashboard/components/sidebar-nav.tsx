@@ -11,6 +11,7 @@ import {
   HomeIcon,
   LogOutIcon,
   Logs,
+  ShoppingCart,
 } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -38,6 +39,11 @@ const navbarLinks: Array<{ label: string; link: string; icon: ReactElement }> =
       label: 'Attendance',
       link: '/dashboard/attendance',
       icon: <Logs />,
+    },
+    {
+      label: 'Point of Sale',
+      link: '/dashboard/point-of-sale',
+      icon: <ShoppingCart />,
     },
   ]
 
