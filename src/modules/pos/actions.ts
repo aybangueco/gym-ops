@@ -5,7 +5,12 @@ import { ActionState } from '../types'
 import { Item, ItemBoughtLog } from '@/generated/prisma'
 import prisma from '@/lib/prisma'
 import { actionGetSession } from '../auth'
-import { PosItemSchema, posItemSchema } from './schemas'
+import {
+  PosItemSchema,
+  posItemSchema,
+  posSelectMemberSchema,
+  PosSelectMemberSchema,
+} from './schemas'
 import { actionGetMemberByID } from '../members'
 import { revalidatePath } from 'next/cache'
 
@@ -101,16 +106,22 @@ export async function actionUpdateItem({
 
     const existingItem = await actionGetItemByID(itemID)
 
-    if (!existingItem) {
+    if (!existingItem.data) {
       throw Errors.ItemNotFound()
     }
 
+    existingItem.data.name = validatedData.name
+    existingItem.data.stocks = Number(validatedData.stocks)
+    existingItem.data.price = Number(validatedData.price)
+
     const updatedItem = await prisma.item.update({
       data: {
-        ...validatedData,
+        name: existingItem.data.name,
+        stocks: existingItem.data.stocks,
+        price: existingItem.data.price,
       },
       where: {
-        id: existingItem.data?.id,
+        id: existingItem.data.id,
         createdBy: session.user.id,
       },
     })
@@ -204,6 +215,133 @@ export async function actionGetItemBoughtById(
     })
 
     return { data: itemBought, ok: true, error: null }
+  } catch (error) {
+    return handleActionStateError(error)
+  }
+}
+
+export async function actionCreateItemBought(
+  data: PosSelectMemberSchema
+): Promise<ActionState<null>> {
+  try {
+    const session = await actionGetSession()
+
+    if (!session) {
+      throw Errors.InvalidSession()
+    }
+
+    const validatedData = posSelectMemberSchema.parse(data)
+
+    const isMemberIdEmpty =
+      validatedData.memberId === '0' || validatedData.memberId === ''
+
+    const existingMember = await actionGetMemberByID(
+      Number(validatedData.memberId)
+    )
+
+    if (existingMember.data === null && !isMemberIdEmpty) {
+      throw Errors.MemberNotFound()
+    }
+
+    await prisma.$transaction(async (tx) => {
+      // Create item log
+      await tx.itemBoughtLog.create({
+        data: {
+          itemId: Number(validatedData.itemId),
+          boughtBy: isMemberIdEmpty ? null : Number(validatedData.memberId),
+          stocksBought: Number(validatedData.stocksBought),
+          createdBy: session.user.id,
+        },
+      })
+
+      await tx.item.update({
+        data: {
+          stocks: { decrement: Number(validatedData.stocksBought) },
+        },
+        where: {
+          id: Number(validatedData.itemId),
+        },
+      })
+    })
+
+    revalidatePath('/point-of-sale')
+
+    return { data: null, ok: true, error: null }
+  } catch (error) {
+    return handleActionStateError(error)
+  } finally {
+    await prisma.$disconnect()
+  }
+}
+
+export async function actionUpdateItemBought({
+  itemBoughtId,
+  data,
+}: {
+  itemBoughtId: number
+  data: PosSelectMemberSchema
+}): Promise<ActionState<ItemBoughtLog>> {
+  try {
+    const session = await actionGetSession()
+
+    if (!session) {
+      throw Errors.InvalidSession()
+    }
+
+    const existingItemBought = await actionGetItemBoughtById(itemBoughtId)
+
+    if (existingItemBought.data === null) {
+      throw Errors.ItemNotFound()
+    }
+
+    const validatedData = posSelectMemberSchema.parse(data)
+
+    existingItemBought.data.itemId = Number(validatedData.itemId)
+    existingItemBought.data.boughtBy = Number(validatedData.memberId)
+    existingItemBought.data.stocksBought = Number(validatedData.stocksBought)
+
+    const updatedItemBoughtLog = await prisma.itemBoughtLog.update({
+      data: {
+        itemId: existingItemBought.data.itemId,
+        boughtBy: existingItemBought.data.boughtBy,
+        stocksBought: existingItemBought.data.stocksBought,
+      },
+      where: {
+        id: itemBoughtId,
+      },
+    })
+
+    revalidatePath('/point-of-sale')
+
+    return { data: updatedItemBoughtLog, ok: true, error: null }
+  } catch (error) {
+    return handleActionStateError(error)
+  }
+}
+
+export async function actionDeleteItemBought(
+  itemBoughtId: number
+): Promise<ActionState<null>> {
+  try {
+    const session = await actionGetSession()
+
+    if (!session) {
+      throw Errors.InvalidSession()
+    }
+
+    const existingItemBought = await actionGetItemBoughtById(itemBoughtId)
+
+    if (existingItemBought.data === null) {
+      throw Errors.ItemNotFound()
+    }
+
+    await prisma.itemBoughtLog.delete({
+      where: {
+        id: itemBoughtId,
+      },
+    })
+
+    return { data: null, ok: true, error: null }
   } catch (error) {
     return handleActionStateError(error)
   }
