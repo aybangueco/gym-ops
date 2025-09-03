@@ -170,15 +170,16 @@ model Item {
 }
 
 model ItemBoughtLog {
-  id        Int      @id @default(autoincrement())
-  itemId    Int
-  item      Item     @relation(fields: [itemId], references: [id], onDelete: Cascade)
-  boughtBy  Int?
-  member    Member?  @relation(fields: [boughtBy], references: [id], onDelete: Cascade)
-  createdBy String
-  user      User     @relation(fields: [createdBy], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           Int      @id @default(autoincrement())
+  itemId       Int
+  item         Item     @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  boughtBy     Int?
+  member       Member?  @relation(fields: [boughtBy], references: [id], onDelete: Cascade)
+  stocksBought Int
+  createdBy    String
+  user         User     @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   @@map("item_bought_log")
 }
