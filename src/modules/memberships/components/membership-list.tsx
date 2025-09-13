@@ -1,11 +1,12 @@
+import { Membership } from '@/generated/prisma'
 import MembershipCard from './membership-card'
-import { MembershipsResponse } from '../types'
+import { ActionState } from '@/modules/types'
 
-type MembershipListProps = {
-  memberships: MembershipsResponse
-}
-
-export default function MembershipList({ memberships }: MembershipListProps) {
+export default function MembershipList({
+  memberships,
+}: {
+  memberships: ActionState<Membership[] | null>
+}) {
   const gridClasses = 'mt-10 grid gap-5 sm:grid-cols-1 lg:grid-cols-2'.trim()
 
   // Error state
@@ -23,7 +24,7 @@ export default function MembershipList({ memberships }: MembershipListProps) {
   }
 
   // Empty state
-  if (memberships.data.length === 0) {
+  if (!memberships.data) {
     return (
       <div className={gridClasses}>
         <div className="col-span-full text-center">
