@@ -1,7 +1,6 @@
 import PageLoading from '@/components/reuseables/loading/page-loading'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { DataTable } from '@/components/ui/data-table'
 import { actionGetSession } from '@/modules/auth'
 import {
   actionCountActiveMembers,
@@ -9,7 +8,6 @@ import {
   actionCountExpiringMembers,
   actionCountMembers,
 } from '@/modules/dashboard'
-import { actionGetMembers, MemberColumns } from '@/modules/members'
 import { Clock, TrendingUp, UserCheck, Users } from 'lucide-react'
 import { Metadata } from 'next'
 import { redirect } from 'next/navigation'
@@ -29,13 +27,6 @@ async function DashboardInner() {
   const now = new Date()
   const sevenDaysFromNow = new Date()
   sevenDaysFromNow.setDate(now.getDate() + 7)
-
-  const expiringMembers = await actionGetMembers({
-    membershipEnd: {
-      gte: now, // membership hasn't expired yet
-      lte: sevenDaysFromNow, // expiring within the next 7 days
-    },
-  })
 
   const totalActiveSession = await actionCountActiveSession()
   const totalMembers = await actionCountMembers()

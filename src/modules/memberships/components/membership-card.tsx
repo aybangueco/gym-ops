@@ -13,7 +13,6 @@ import {
 import DeleteDialog from '@/components/reuseables/dialog/delete-dialog'
 import { actionDeleteMembership } from '../actions'
 import { toast } from 'sonner'
-import { useState } from 'react'
 import UpdateDialogForm from '@/components/reuseables/dialog/update-dialog-form'
 import MembershipForm from './membership-form'
 
@@ -22,20 +21,15 @@ type MembershipCardProps = {
 }
 
 export default function MembershipCard({ data }: MembershipCardProps) {
-  const [deleteIsPending, setDeleteIsPending] = useState<boolean>(false)
-
   const deleteMembership = async () => {
-    setDeleteIsPending(true)
     const { ok, error } = await actionDeleteMembership(data.id)
 
     if (!ok && error !== null) {
       toast.error(error.message)
-      setDeleteIsPending(false)
       return
     }
 
     toast.success('Membership deleted successfully')
-    setDeleteIsPending(false)
   }
 
   return (
@@ -64,11 +58,7 @@ export default function MembershipCard({ data }: MembershipCardProps) {
               </UpdateDialogForm>
             </DropdownMenuItem>
             <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-              <DeleteDialog
-                itemName={data.name}
-                deleteFn={deleteMembership}
-                isPending={deleteIsPending}
-              />
+              <DeleteDialog itemName={data.name} deleteFn={deleteMembership} />
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

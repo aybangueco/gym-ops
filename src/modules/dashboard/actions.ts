@@ -1,3 +1,5 @@
+'use server'
+
 import { Errors, handleActionStateError } from '@/lib/errors'
 import { ActionState } from '../types'
 import prisma from '@/lib/prisma'
