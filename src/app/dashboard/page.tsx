@@ -1,6 +1,7 @@
 import PageLoading from '@/components/reuseables/loading/page-loading'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { DataTable } from '@/components/ui/data-table'
 import { actionGetSession } from '@/modules/auth'
 import {
   actionCountActiveMembers,
@@ -8,6 +9,7 @@ import {
   actionCountExpiringMembers,
   actionCountMembers,
 } from '@/modules/dashboard'
+import { actionGetMembers, MemberColumns } from '@/modules/members'
 import { Clock, TrendingUp, UserCheck, Users } from 'lucide-react'
 import { Metadata } from 'next'
 import { redirect } from 'next/navigation'
@@ -23,6 +25,17 @@ async function DashboardInner() {
   if (!session) {
     redirect('/login')
   }
+
+  const now = new Date()
+  const sevenDaysFromNow = new Date()
+  sevenDaysFromNow.setDate(now.getDate() + 7)
+
+  const expiringMembers = await actionGetMembers({
+    membershipEnd: {
+      gte: now, // membership hasn't expired yet
+      lte: sevenDaysFromNow, // expiring within the next 7 days
+    },
+  })
 
   const totalActiveSession = await actionCountActiveSession()
   const totalMembers = await actionCountMembers()
@@ -136,7 +149,7 @@ async function DashboardInner() {
             <div className="grid grid-cols-1 gap-4 text-center md:grid-cols-3">
               <div className="space-y-1">
                 <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-                  {totalActiveMembers && totalMembers
+                  {totalActiveMembers.data && totalMembers.data
                     ? Math.round(
                         (totalActiveMembers.data / totalMembers.data) * 100
                       )
