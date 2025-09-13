@@ -6,11 +6,13 @@ import { memberSchema, MemberSchema } from './'
 import { ActionState } from '../types'
 import { revalidatePath } from 'next/cache'
 import { actionGetMembershipByID } from '../memberships'
-import { Member } from '@/generated/prisma'
+import { Member, Prisma } from '@/generated/prisma'
 import { Errors, handleActionStateError } from '@/lib/errors'
 import { actionCreateAttendance } from '../attendance'
 
-export async function actionGetMembers(): Promise<ActionState<Member[]>> {
+export async function actionGetMembers(
+  where: Prisma.MemberWhereInput = {}
+): Promise<ActionState<Member[]>> {
   try {
     const session = await actionGetSession()
 
@@ -18,9 +20,11 @@ export async function actionGetMembers(): Promise<ActionState<Member[]>> {
       throw Errors.InvalidSession()
     }
 
+    where.createdBy = session.user.id
+
     const members = await prisma.member.findMany({
       where: {
-        createdBy: session.user.id,
+        ...where,
       },
       orderBy: {
         id: 'desc',
