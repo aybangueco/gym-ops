@@ -37,7 +37,9 @@ jobs:
         run: pnpx prisma generate
 
       - name: Deploy database migrations
-        run: pnpx prisma migrate deploy
+        env:
+          DATABASE_URL: ${{ env.DATABASE_URL }}
+        run: npx prisma migrate deploy
 
       - name: Build Project
         run: pnpm run build
