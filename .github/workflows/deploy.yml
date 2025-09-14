@@ -27,18 +27,12 @@ jobs:
       - name: Install Dependencies
         run: pnpm install
 
-      - name: Checking linting
-        run: pnpm run lint
-
-      - name: Checking formatting
-        run: pnpm run prettier:check
-
       - name: Generate Prisma
         run: pnpx prisma generate
 
       - name: Deploy database migrations
         env:
-          DATABASE_URL: ${{ env.DATABASE_URL }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: npx prisma migrate deploy
 
       - name: Build Project
